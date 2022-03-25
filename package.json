@@ -1,0 +1,29 @@
+{
+    "name": "shapez-io-mods",
+    "version": "1.0.0",
+    "license": "GPL-3.0-only",
+    "scripts": {
+        "dev": "cd gulp && yarn gulp",
+        "devStandalone": "cd gulp && yarn gulp main.watch.standalone",
+        "build": "cd gulp && yarn gulp main.build",
+        "tslint": "cd src/js && yarn tsc",
+        "lint": "yarn eslint src/js",
+        "prettier-all": "yarn prettier --write src/**/*.* && yarn prettier --write gulp/**/*.*"
+    },
+    "private": true,
+    "dependencies": {
+        "eslint": "8.7.0",
+        "typescript": "4.5.4"
+    },
+    "devDependencies": {
+        "@types/jest": "^27.4.1",
+        "@types/node": "^17.0.9",
+        "@typescript-eslint/eslint-plugin": "5.10.0",
+        "@typescript-eslint/parser": "5.10.0",
+        "eslint-config-prettier": "8.3.0",
+        "eslint-plugin-prettier": "4.0.0",
+        "jest": "^27.5.1",
+        "prettier": "^2.0.4",
+        "ts-jest": "^27.1.3"
+    }
+}

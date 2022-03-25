@@ -1,0 +1,10 @@
+{
+    "entry": "main.ts",
+    "id": "compact",
+    "version": "1.0.0",
+    "name": "Compact Machines",
+    "author": "entibo",
+    "description": "",
+    "website": "https://github.com/entibo/shapezio-mods",
+    "settings": {}
+}
