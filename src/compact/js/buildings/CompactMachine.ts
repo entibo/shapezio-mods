@@ -23,7 +23,7 @@ import {
   RegisterComponent,
   RegisterNewBuilding,
 } from "../decorators"
-import multiPng from "../../res/sprites/multi.png"
+import toolbarIcon from "../../res/sprites/compact-toolbar.png"
 import { Direction, getComponent, invertedDirection } from "../util"
 import Zone from "../logic/Zone"
 import { CompactMachineRelay } from "./CompactMachineRelay"
@@ -45,8 +45,9 @@ export function isCompactMachine<T extends Entity>(
 
 //-----------------------------------------------------------------------------
 
-@RegisterNewBuilding({ buildingIconBase64: multiPng })
-@AddNewBuildingToToolbar({ toolbar: "regular", location: "primary" })
+@RegisterNewBuilding({ buildingIconBase64: toolbarIcon })
+@AddNewBuildingToToolbar({ toolbar: "regular", location: "secondary" })
+@AddNewBuildingToToolbar({ toolbar: "wires", location: "secondary" })
 export class ModMetaCompactMachineBuilding extends ModMetaBuilding {
   static getAllVariantCombinations() {
     return [
@@ -57,7 +58,7 @@ export class ModMetaCompactMachineBuilding extends ModMetaBuilding {
 
         // regularImageBase64: multiPng,
         // blueprintImageBase64: multiPng,
-        tutorialImageBase64: multiPng,
+        tutorialImageBase64: toolbarIcon,
       },
     ]
   }

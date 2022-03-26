@@ -28,10 +28,10 @@ export class DoubleClickDetector extends GameSystem {
       }
       const tile = root.camera.screenToWorld(pos).toTileSpace()
       if ((doubleClickEntitySignal as Signal).receivers.length) {
-        const entity = getTileContent(root, tile, root.currentLayer as Layer)
-        if (entity)
+        for (const entity of getTileContent(root, tile)) {
           if (doubleClickEntitySignal.dispatch(entity) === STOP_PROPAGATION)
             return STOP_PROPAGATION
+        }
       }
       return doubleClickTileSignal.dispatch(tile)
     })

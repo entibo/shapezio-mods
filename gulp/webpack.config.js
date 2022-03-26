@@ -10,7 +10,6 @@ const { TypePredicateKind } = require("typescript")
 const TerserPlugin = require("terser-webpack-plugin")
 
 function getModFolder(filePath, mods) {
-  // console.log("getModFolders", filePath, mods, mods.find(x => x.folder === dirs[dirs.indexOf("src") + 1]))
   const dirs = path.dirname(filePath).replace(/\\/g, "/").split("/")
   return mods.find((x) => x.folder === dirs[dirs.indexOf("src") + 1])
 }

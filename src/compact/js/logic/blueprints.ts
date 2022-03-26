@@ -42,7 +42,8 @@ function setBlueprintSprite(
 ) {
   if (!cm.compact.contents) return
 
-  const upperLayer = makeEmptyChunkSizedArray()
+  const contents = makeEmptyChunkSizedArray()
+  const wireContents = makeEmptyChunkSizedArray()
   for (const entity of cm.compact.contents.entities)
     for (const [x, y] of entity.static.getTileSpaceBounds())
       if (
@@ -50,13 +51,16 @@ function setBlueprintSprite(
         y >= 0 &&
         x <= globalConfig.mapChunkSize &&
         y <= globalConfig.mapChunkSize
-      )
-        upperLayer[x][y] = entity
+      ) {
+        if(entity.layer === "regular") contents[x][y] = entity
+        else wireContents[x][y] = entity
+      }
 
   cm.static.getBlueprintSprite = () => {
     const compactSprite = getCompactSprite({
       root,
-      contents: upperLayer,
+      contents,
+      wireContents,
       key: "compact_blueprint@" + root.currentLayer,
       subKey,
     })

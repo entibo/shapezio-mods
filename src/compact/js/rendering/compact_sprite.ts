@@ -43,7 +43,7 @@ function generateCompactSpriteBuffer(
   w: number,
   h: number,
   _dpi: number,
-  { root, contents, localTileOffset }: CompactSpriteRedrawOpts
+  { root, contents, wireContents, localTileOffset }: CompactSpriteRedrawOpts
 ) {
   localTileOffset = localTileOffset || new Vector(0, 0)
 
@@ -71,7 +71,7 @@ function generateCompactSpriteBuffer(
       // The method only checks its length
       containedEntities: empty ? [] : [null],
       lowerLayer: emptyChunkSizedArray,
-      wireContents: emptyChunkSizedArray,
+      wireContents,
       contents,
     },
     context,
@@ -92,6 +92,7 @@ type RedrawMethod = Parameters<BufferMaintainer["getForKey"]>[0]["redrawMethod"]
 type CompactSpriteRedrawOpts = {
   root: GameRoot
   contents: (Entity | null)[][]
+  wireContents: (Entity | null)[][]
   localTileOffset?: Vector
   key: string
   subKey: string

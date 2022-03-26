@@ -45,6 +45,7 @@ import {
 } from "../util"
 import Zone from "./Zone"
 import ZoneManager from "./ZoneManager"
+import { enableWires } from "../wires"
 
 @RegisterGameSystem({ updateBefore: "itemProcessor" })
 export class CompactMachineSystem extends SignalReceiver(GameSystemWithFilter) {
@@ -61,6 +62,7 @@ export class CompactMachineSystem extends SignalReceiver(GameSystemWithFilter) {
 
     enableResourceOverride(this.root, this.zoneManager)
     enableItemAnimations(this.root)
+    enableWires(this.root, this.zoneManager)
   }
 
   update() {
@@ -111,6 +113,7 @@ export class CompactMachineSystem extends SignalReceiver(GameSystemWithFilter) {
         key: "compact@" + this.root.currentLayer,
         subKey: cm.uid + "@" + targetChunk.renderIteration,
         contents: targetChunk.contents,
+        wireContents: targetChunk.wireContents,
         localTileOffset: targetOrigin.modScalar(globalConfig.mapChunkSize),
       }).draw(parameters, world.x, world.y)
     }

@@ -7,6 +7,7 @@ import { isCompactMachineRelay } from "./CompactMachineRelay"
 
 export * from "./CompactMachine"
 export * from "./CompactMachineRelay"
+export * from "./CompactSignalReceiver"
 
 export function isCompactMachineOrRelay(entity: Entity) {
   return isCompactMachine(entity) || isCompactMachineRelay(entity)
