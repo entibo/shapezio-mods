@@ -4,6 +4,7 @@ import { GameRoot } from "shapez/game/root"
 import { THEME } from "shapez/game/theme"
 import { getTileContent } from "../util"
 import Zone from "../logic/Zone"
+import { safeModulo } from "shapez/core/utils"
 
 export function drawZoneBackground(
   root: GameRoot,
@@ -46,6 +47,15 @@ export function drawZoneBackground(
     )!
     context.fillRect(x * dpi - 0.5, y * dpi - 0.5, w * dpi + 1, w * dpi + 1)
     context.scale(dpi, dpi)
+  }
+
+  context.globalAlpha = 0.3
+  context.strokeStyle = root.currentLayer === "regular" ? "#e7e9ea" : "#000000"
+  context.lineWidth = borderWidth
+  for (const tile of compactChunks) {
+    const { x, y } = tile.multiplyScalar(tileSize)
+    context.strokeRect(x, y, w, w)
+    context.stroke()
   }
 
   // Draw fake resources

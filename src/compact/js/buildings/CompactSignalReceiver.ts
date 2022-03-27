@@ -7,17 +7,13 @@ import {
   WiredPinsComponent,
 } from "shapez/game/components/wired_pins"
 import { Entity } from "shapez/game/entity"
-import { GameSystemWithFilter } from "shapez/game/game_system_with_filter"
-import { ColorItem } from "shapez/game/items/color_item"
-import { MetaBuilding } from "shapez/game/meta_building"
-import { GameRoot } from "shapez/game/root"
-import { WireNetwork } from "shapez/game/systems/wire"
+import { defaultBuildingVariant, MetaBuilding } from "shapez/game/meta_building"
 import { THEME } from "shapez/game/theme"
 import toolbarIcon from "../../res/sprites/compact-signal-toolbar.png"
+import tutorialImage from "../../res/ui/building_tutorials/compact-signal-receiver.png"
 import {
   AddNewBuildingToToolbar,
   RegisterComponent,
-  RegisterGameSystem,
   RegisterNewBuilding,
 } from "../decorators"
 import { getComponent } from "../util"
@@ -30,41 +26,20 @@ export function isCompactSignalReceiver<T extends Entity>(
 
 //-----------------------------------------------------------------------------
 
-enum CompactSignalReceiverVariant {
-  receiver = "default",
-  transmitter = "transmitter",
-}
-
 @RegisterNewBuilding({ buildingIconBase64: toolbarIcon })
 @AddNewBuildingToToolbar({ toolbar: "wires", location: "secondary" })
 export class MetaCompactSignalReceiverBuilding extends MetaBuilding {
   static getAllVariantCombinations() {
     return [
       {
-        name: "Compact Signal Receiver",
-        description: "",
-        variant: CompactSignalReceiverVariant.receiver,
+        name: "Transceiver",
+        description: "Connects the inside and the outside of a compact machine to a wire network.",
+        variant: defaultBuildingVariant,
 
         // regularImageBase64: multiPng,
         // blueprintImageBase64: multiPng,
-        tutorialImageBase64: toolbarIcon,
+        tutorialImageBase64: tutorialImage,
       },
-      // {
-      //   name: "Compact Signal Transmitter",
-      //   description: "",
-      //   variant: CompactSignalReceiverVariant.transmitter,
-
-      //   // regularImageBase64: multiPng,
-      //   // blueprintImageBase64: multiPng,
-      //   tutorialImageBase64: toolbarIcon,
-      // },
-    ]
-  }
-
-  getAvailableVariants() {
-    return [
-      CompactSignalReceiverVariant.receiver,
-      // CompactSignalReceiverVariant.transmitter,
     ]
   }
 
@@ -75,28 +50,16 @@ export class MetaCompactSignalReceiverBuilding extends MetaBuilding {
   setupEntityComponents(entity: Entity) {
     entity.addComponent(
       new WiredPinsComponent({
-        slots: [],
+        slots: [
+          {
+            pos: new Vector(0, 0),
+            direction: enumDirection.bottom,
+            type: enumPinSlotType.logicalAcceptor,
+          },
+        ],
       })
     )
     entity.addComponent(new CompactSignalReceiverComponent())
-  }
-
-  updateVariants(
-    entity: Entity,
-    _rotationVariant: number,
-    variant: string
-  ): void {
-    const slotType =
-      variant === CompactSignalReceiverVariant.receiver
-        ? enumPinSlotType.logicalAcceptor
-        : enumPinSlotType.logicalEjector
-    entity.components.WiredPins.setSlots([
-      {
-        pos: new Vector(0, 0),
-        direction: enumDirection.bottom,
-        type: slotType,
-      },
-    ])
   }
 
   //@ts-expect-error
@@ -111,7 +74,7 @@ export class MetaCompactSignalReceiverBuilding extends MetaBuilding {
   }
   //@ts-expect-error
   getPreviewSprite(rotationVariant?: number, variant?: string): AtlasSprite {
-    return Loader.getSprite("sprites/buildings/compact.png")
+    return Loader.getSprite("sprites/buildings/compact-signal-receiver.png")
   }
 
   getSilhouetteColor() {

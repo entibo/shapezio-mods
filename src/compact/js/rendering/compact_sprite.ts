@@ -54,16 +54,19 @@ function generateCompactSpriteBuffer(
     break
   }
 
-  const [emptyColor, filledColor, beltColor, chunkBordersColor] = [
-    shapez.THEME.map.chunkOverview.empty,
-    shapez.THEME.map.chunkOverview.filled,
-    shapez.THEME.map.chunkOverview.beltColor,
-    shapez.THEME.map.chunkBorders,
-  ]
+  const [emptyColor, filledColor, beltColor, chunkBordersColor, overlayColor] =
+    [
+      shapez.THEME.map.chunkOverview.empty,
+      shapez.THEME.map.chunkOverview.filled,
+      shapez.THEME.map.chunkOverview.beltColor,
+      shapez.THEME.map.chunkBorders,
+      shapez.THEME.map.wires.overlayColor,
+    ]
   shapez.THEME.map.chunkOverview.empty = "rgba(127,127,127,0.3)"
   shapez.THEME.map.chunkOverview.filled = "transparent"
   shapez.THEME.map.chunkOverview.beltColor = "#d2d4d9"
   shapez.THEME.map.chunkBorders = "transparent"
+  shapez.THEME.map.wires.overlayColor = "transparent"
 
   MapChunkView.prototype.generateOverlayBuffer.call(
     {
@@ -85,6 +88,7 @@ function generateCompactSpriteBuffer(
   shapez.THEME.map.chunkOverview.filled = filledColor
   shapez.THEME.map.chunkOverview.beltColor = beltColor
   shapez.THEME.map.chunkBorders = chunkBordersColor
+  shapez.THEME.map.wires.overlayColor = overlayColor
 }
 
 type RedrawMethod = Parameters<BufferMaintainer["getForKey"]>[0]["redrawMethod"]

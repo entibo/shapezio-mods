@@ -113,21 +113,22 @@ module.exports = async ({ watch = false }) => {
     {}
   )
 
-  
   return /** @type {import("webpack").Configuration} */ {
     optimization: {
       minimize: true,
-      minimizer: [new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-        },
-      })],
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            keep_classnames: true,
+          },
+        }),
+      ],
     },
     mode: watch ? "development" : "production",
     ...(watch ? { devtool: "hidden-source-map" } : {}),
     entry: entries,
     watch,
-    
+
     resolve: {
       extensions: [".ts", ".js"],
     },
@@ -254,19 +255,10 @@ module.exports = async ({ watch = false }) => {
                         }
                       )
                     )
-                    const info = {
-                      name: json.name,
-                      description: json.description,
-                      website: json.website,
-                      id: json.id,
-                      version: json.version,
-                      author: json.author,
-                      settings: json.settings,
-                    }
 
                     return `\n
-                                        window.$shapez_registerMod(${variableName}, ${JSON.stringify(
-                      info
+                      window.$shapez_registerMod(${variableName}, ${JSON.stringify(
+                      json
                     )});`
                   } else {
                     return ""

@@ -4,7 +4,8 @@
     "version": "1.0.0",
     "name": "Compact Machines",
     "author": "entibo",
-    "description": "Infinitely recursive.",
+    "description": "Infinitely recursive!",
     "website": "https://github.com/entibo/shapezio-mods",
-    "settings": {}
+    "settings": {},
+    "modId": "1935972"
 }

@@ -45,7 +45,8 @@ import {
 } from "../util"
 import Zone from "./Zone"
 import ZoneManager from "./ZoneManager"
-import { enableWires } from "../wires"
+import { enableWires } from "./wires"
+import { enableChunkBordersOverride } from "../rendering/chunk_borders"
 
 @RegisterGameSystem({ updateBefore: "itemProcessor" })
 export class CompactMachineSystem extends SignalReceiver(GameSystemWithFilter) {
@@ -60,6 +61,7 @@ export class CompactMachineSystem extends SignalReceiver(GameSystemWithFilter) {
     this.zoneManager = new ZoneManager()
     this.cameraManager = new CameraManager(root.camera, this.zoneManager)
 
+    enableChunkBordersOverride(this.root)
     enableResourceOverride(this.root, this.zoneManager)
     enableItemAnimations(this.root)
     enableWires(this.root, this.zoneManager)

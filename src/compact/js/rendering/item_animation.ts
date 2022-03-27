@@ -2,16 +2,15 @@ import { globalConfig } from "shapez/core/config"
 import { DrawParameters } from "shapez/core/draw_parameters"
 import { Vector } from "shapez/core/vector"
 import { BaseItem } from "shapez/game/base_item"
+import { BeltPath } from "shapez/game/belt_path"
 import { ColorItem } from "shapez/game/items/color_item"
 import { ShapeItem } from "shapez/game/items/shape_item"
 import { MapChunkView } from "shapez/game/map_chunk_view"
+import { GameRoot } from "shapez/game/root"
 import { BeltSystem } from "shapez/game/systems/belt"
 import { ItemAcceptorSystem } from "shapez/game/systems/item_acceptor"
 import { ItemEjectorSystem } from "shapez/game/systems/item_ejector"
-import { MOD_SIGNALS } from "shapez/mods/mod_signals"
-import { GameRoot } from "shapez/savegame/savegame"
 import { isCompactMachine, isCompactMachineOrRelay } from "../buildings"
-import { override } from "../override"
 import { getTileContent, rooted } from "../util"
 
 export const enableItemAnimations = rooted(function* (root: GameRoot) {
@@ -22,6 +21,14 @@ export const enableItemAnimations = rooted(function* (root: GameRoot) {
       currentlyDrawingBeltsOrAcceptorsOrEjectors = true
       super.drawBeltItems(parameters)
       currentlyDrawingBeltsOrAcceptorsOrEjectors = false
+    }
+  }
+
+  yield class extends BeltPath {
+    drawShapesInARow() {
+      currentlyDrawingBeltsOrAcceptorsOrEjectors = false
+      super.drawShapesInARow.apply(this, arguments as any)
+      currentlyDrawingBeltsOrAcceptorsOrEjectors = true
     }
   }
 

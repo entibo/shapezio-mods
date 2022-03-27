@@ -24,6 +24,7 @@ import {
   RegisterNewBuilding,
 } from "../decorators"
 import toolbarIcon from "../../res/sprites/compact-toolbar.png"
+import tutorialImage from "../../res/ui/building_tutorials/compact-machine.png"
 import { Direction, getComponent, invertedDirection } from "../util"
 import Zone from "../logic/Zone"
 import { CompactMachineRelay } from "./CompactMachineRelay"
@@ -58,7 +59,7 @@ export class ModMetaCompactMachineBuilding extends ModMetaBuilding {
 
         // regularImageBase64: multiPng,
         // blueprintImageBase64: multiPng,
-        tutorialImageBase64: toolbarIcon,
+        tutorialImageBase64: tutorialImage,
       },
     ]
   }
@@ -120,7 +121,7 @@ export class ModMetaCompactMachineBuilding extends ModMetaBuilding {
     return new Vector(1, 1)
   }
   //@ts-expect-error
-  getRenderPins(): boolean {
+  getShowWiresLayerPreview() {
     return true
   }
   //@ts-expect-error
