@@ -1,10 +1,8 @@
 import { globalConfig } from "shapez/core/config"
 import { DrawParameters } from "shapez/core/draw_parameters"
 import { GameRoot } from "shapez/game/root"
-import { THEME } from "shapez/game/theme"
-import { getTileContent } from "../util"
 import Zone from "../logic/Zone"
-import { safeModulo } from "shapez/core/utils"
+import { getTileContent } from "../util"
 
 export function drawZoneBackground(
   root: GameRoot,
@@ -14,8 +12,12 @@ export function drawZoneBackground(
   const { context } = parameters
   const { tileSize } = globalConfig
 
+  let outerColor = shapez.THEME.map.zone.outerColor
+  if (root.app.settings.getAllSettings().disableTileGrid)
+    outerColor = outerColor.replace(/0\.\d+\)$/, "1")
+
   // Make everything gray-er
-  context.fillStyle = THEME.map.zone.outerColor
+  context.fillStyle = outerColor
   context.fillRect(
     zone.origin.x * tileSize,
     zone.origin.y * tileSize,
