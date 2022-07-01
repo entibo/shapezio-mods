@@ -44,7 +44,7 @@ export function drawZoneBackground(
     const dpi = root.map.backgroundCacheDPI
     context.scale(1 / dpi, 1 / dpi)
     context.fillStyle = context.createPattern(
-      root.map.cachedBackgroundCanvas,
+      root.map.cachedBackgroundCanvases.regular!,
       "repeat"
     )!
     context.fillRect(x * dpi - 0.5, y * dpi - 0.5, w * dpi + 1, w * dpi + 1)

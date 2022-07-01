@@ -1,7 +1,7 @@
 {
     "entry": "main.ts",
     "id": "compact",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "name": "Compact Machines",
     "author": "entibo",
     "description": "Infinitely recursive!",

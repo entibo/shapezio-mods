@@ -1,7 +1,7 @@
 declare module "*.png" {
     const content: string
     export default content
-  }
+}
   
 
 declare module "shapez/core/signal" {
@@ -48,17 +48,21 @@ declare module "shapez/core/config.local" {
     export default _default;
 }
 declare module "shapez/core/config" {
+    /**
+     * @param {Application} app
+     * @param {string} campaign
+     */
+    export function openStandaloneLink(app: Application, campaign: string): void;
     export const IS_DEBUG: boolean;
     export const SUPPORT_TOUCH: false;
-    export const IS_MAC: boolean;
     export namespace THIRDPARTY_URLS {
         export const discord: string;
         export const github: string;
         export const reddit: string;
         export const shapeViewer: string;
+        export const twitter: string;
         export const privacyPolicy: string;
-        export const standaloneStorePage: string;
-        export const stanaloneCampaignLink: string;
+        export const standaloneCampaignLink: string;
         export const puzzleDlcStorePage: string;
         export const levelTutorialVideos: {
             21: string;
@@ -67,7 +71,6 @@ declare module "shapez/core/config" {
         };
         export const modBrowser: string;
     }
-    export const A_B_TESTING_LINK_TYPE: "steam_2_npr";
 
     export namespace globalConfig {
         export const tileSize: number;
@@ -128,6 +131,7 @@ declare module "shapez/core/config" {
         export const warmupTimeSecondsRegular: number;
     }
     export const IS_MOBILE: boolean;
+    import { Application } from "shapez/application";
 }
 declare module "shapez/core/logging" {
     export function createLogger(context: any): Logger;
@@ -175,6 +179,132 @@ declare module "shapez/core/animation_frame" {
     }
     import { Signal } from "shapez/core/signal";
 }
+declare module "shapez/core/singleton_factory" {
+    export class SingletonFactory {
+        constructor(id: any);
+        id: any;
+        entries: any[];
+        idToEntry: {};
+        getId(): any;
+        register(classHandle: any): void;
+        /**
+         * Checks if a given id is registered
+         * @param {string} id
+         * @returns {boolean}
+         */
+        hasId(id: string): boolean;
+        /**
+         * Finds an instance by a given id
+         * @param {string} id
+         * @returns {object}
+         */
+        findById(id: string): object;
+        /**
+         * Finds an instance by its constructor (The class handle)
+         * @param {object} classHandle
+         * @returns {object}
+         */
+        findByClass(classHandle: object): object;
+        /**
+         * Returns all entries
+         * @returns {Array<object>}
+         */
+        getEntries(): Array<object>;
+        /**
+         * Returns all registered ids
+         * @returns {Array<string>}
+         */
+        getAllIds(): Array<string>;
+        /**
+         * Returns amount of stored entries
+         * @returns {number}
+         */
+        getNumEntries(): number;
+    }
+}
+declare module "shapez/core/factory" {
+    export class Factory {
+        constructor(id: any);
+        id: any;
+        entries: any[];
+        entryIds: any[];
+        idToEntry: {};
+        getId(): any;
+        register(entry: any): void;
+        /**
+         * Checks if a given id is registered
+         * @param {string} id
+         * @returns {boolean}
+         */
+        hasId(id: string): boolean;
+        /**
+         * Finds an instance by a given id
+         * @param {string} id
+         * @returns {object}
+         */
+        findById(id: string): object;
+        /**
+         * Returns all entries
+         * @returns {Array<object>}
+         */
+        getEntries(): Array<object>;
+        /**
+         * Returns all registered ids
+         * @returns {Array<string>}
+         */
+        getAllIds(): Array<string>;
+        /**
+         * Returns amount of stored entries
+         * @returns {number}
+         */
+        getNumEntries(): number;
+    }
+}
+declare module "shapez/core/rng" {
+    export class RandomNumberGenerator {
+        /**
+         *
+         * @param {number|string=} seed
+         */
+        constructor(seed?: (number | string) | undefined);
+        internalRng: {
+            (): number;
+            exportState(): number[];
+            importState(i: any): void;
+        };
+        /**
+         * Re-seeds the generator
+         * @param {number|string} seed
+         */
+        reseed(seed: number | string): void;
+        /**
+         * @returns {number} between 0 and 1
+         */
+        next(): number;
+        /**
+         * Random choice of an array
+         * @param {array} array
+         */
+        choice(array: any[]): any;
+        /**
+         * @param {number} min
+         * @param {number} max
+         * @returns {number} Integer in range [min, max[
+         */
+        nextIntRange(min: number, max: number): number;
+        /**
+         * @param {number} min
+         * @param {number} max
+         * @returns {number} Number in range [min, max[
+         */
+        nextRange(min: number, max: number): number;
+        /**
+         * Updates the seed
+         * @param {number} seed
+         */
+        setSeed(seed: number): void;
+    }
+}
 declare module "shapez/languages" {
     /**
      * @type {Object<string, {name: string, data: any, code: string, region: string}>}
@@ -198,17 +328,11 @@ declare module "shapez/translations" {
     export function updateApplicationLanguage(id: any): void;
     export let T: any;
 }
+declare module "shapez/core/steam_sso" {
+    export function authorizeViaSSOToken(app: any, dialogs: any): Promise<any>;
+    export let WEB_STEAM_SSO_AUTHENTICATED: boolean;
+}
 declare module "shapez/core/utils" {
-    /**
-     * Returns if this platform is android
-     * @returns {boolean}
-     */
-    export function isAndroid(): boolean;
-    /**
-     * Returns if this platform is iOs
-     * @returns {boolean}
-     */
-    export function isIos(): boolean;
     /**
      * Returns a platform name
      * @returns {"android" | "browser" | "ios" | "standalone" | "unknown"}
@@ -230,7 +354,7 @@ declare module "shapez/core/utils" {
      * @param {number} start
      * @param {number} end
      */
-    export function randomInt(start: number, end: number): number;
+    export function randomInt(start: number, end: number): any;
     /**
      * Access an object in a very annoying way, used for obsfuscation.
      * @param {any} obj
@@ -505,123 +629,21 @@ declare module "shapez/core/utils" {
      * @returns {string}
      */
     export function getRomanNumber(number: number): string;
+    /**
+     * Returns the appropriate logo sprite path
+     */
+    export function getLogoSprite(): "logo_wegame.png" | "logo_demo.png" | "logo_cn.png" | "logo.png";
+    /**
+     * Rejects a promise after X ms
+     * @param {Promise} promise
+     */
+    export function timeoutPromise(promise: Promise<any>, timeout?: number): Promise<any>;
     export type DirectionalObject = {
         top: any;
         right: any;
         bottom: any;
         left: any;
     };
-}
-declare module "shapez/core/buffer_utils" {
-    /**
-     * Enables images smoothing on a context
-     * @param {CanvasRenderingContext2D} context
-     */
-    export function enableImageSmoothing(context: CanvasRenderingContext2D): void;
-    /**
-     * Disables image smoothing on a context
-     * @param {CanvasRenderingContext2D} context
-     */
-    export function disableImageSmoothing(context: CanvasRenderingContext2D): void;
-    /**
-     *
-     * @param {HTMLCanvasElement} canvas
-     */
-    export function getBufferVramUsageBytes(canvas: HTMLCanvasElement): number;
-    /**
-     * Returns stats on the allocated buffers
-     */
-    export function getBufferStats(): {
-        backlogKeys: number;
-        backlogSize: number;
-        vramUsage: number;
-        backlogVramUsage: number;
-        bufferCount: number;
-        numReused: number;
-        numCreated: number;
-    };
-    /**
-     * Clears the backlog buffers if they grew too much
-     */
-    export function clearBufferBacklog(): void;
-    /**
-     * Creates a new offscreen buffer
-     * @param {Number} w
-     * @param {Number} h
-     * @returns {[HTMLCanvasElement, CanvasRenderingContext2D]}
-     */
-    export function makeOffscreenBuffer(
-        w: number,
-        h: number,
-        {
-            smooth,
-            reusable,
-            label,
-        }: {
-            smooth?: boolean;
-            reusable?: boolean;
-            label?: string;
-        }
-    ): [HTMLCanvasElement, CanvasRenderingContext2D];
-    /**
-     * Frees a canvas
-     * @param {HTMLCanvasElement} canvas
-     */
-    export function registerCanvas(canvas: HTMLCanvasElement, context: any): void;
-    /**
-     * Frees a canvas
-     * @param {HTMLCanvasElement} canvas
-     */
-    export function freeCanvas(canvas: HTMLCanvasElement): void;
-    export type CanvasCacheEntry = {
-        canvas: HTMLCanvasElement;
-        context: CanvasRenderingContext2D;
-    };
-}
-declare module "shapez/core/rng" {
-    export class RandomNumberGenerator {
-        /**
-         *
-         * @param {number|string=} seed
-         */
-        constructor(seed?: (number | string) | undefined);
-        internalRng: {
-            (): number;
-            exportState(): number[];
-            importState(i: any): void;
-        };
-        /**
-         * Re-seeds the generator
-         * @param {number|string} seed
-         */
-        reseed(seed: number | string): void;
-        /**
-         * @returns {number} between 0 and 1
-         */
-        next(): number;
-        /**
-         * Random choice of an array
-         * @param {array} array
-         */
-        choice(array: any[]): any;
-        /**
-         * @param {number} min
-         * @param {number} max
-         * @returns {number} Integer in range [min, max[
-         */
-        nextIntRange(min: number, max: number): number;
-        /**
-         * @param {number} min
-         * @param {number} max
-         * @returns {number} Number in range [min, max[
-         */
-        nextRange(min: number, max: number): number;
-        /**
-         * Updates the seed
-         * @param {number} seed
-         */
-        setSeed(seed: number): void;
-    }
 }
 declare module "shapez/core/vector" {
     /**
@@ -1203,219 +1225,6 @@ declare module "shapez/core/explained_result" {
         isBad(): boolean;
     }
 }
-declare module "shapez/core/singleton_factory" {
-    export class SingletonFactory {
-        constructor(id: any);
-        id: any;
-        entries: any[];
-        idToEntry: {};
-        getId(): any;
-        register(classHandle: any): void;
-        /**
-         * Checks if a given id is registered
-         * @param {string} id
-         * @returns {boolean}
-         */
-        hasId(id: string): boolean;
-        /**
-         * Finds an instance by a given id
-         * @param {string} id
-         * @returns {object}
-         */
-        findById(id: string): object;
-        /**
-         * Finds an instance by its constructor (The class handle)
-         * @param {object} classHandle
-         * @returns {object}
-         */
-        findByClass(classHandle: object): object;
-        /**
-         * Returns all entries
-         * @returns {Array<object>}
-         */
-        getEntries(): Array<object>;
-        /**
-         * Returns all registered ids
-         * @returns {Array<string>}
-         */
-        getAllIds(): Array<string>;
-        /**
-         * Returns amount of stored entries
-         * @returns {number}
-         */
-        getNumEntries(): number;
-    }
-}
-declare module "shapez/core/factory" {
-    export class Factory {
-        constructor(id: any);
-        id: any;
-        entries: any[];
-        entryIds: any[];
-        idToEntry: {};
-        getId(): any;
-        register(entry: any): void;
-        /**
-         * Checks if a given id is registered
-         * @param {string} id
-         * @returns {boolean}
-         */
-        hasId(id: string): boolean;
-        /**
-         * Finds an instance by a given id
-         * @param {string} id
-         * @returns {object}
-         */
-        findById(id: string): object;
-        /**
-         * Returns all entries
-         * @returns {Array<object>}
-         */
-        getEntries(): Array<object>;
-        /**
-         * Returns all registered ids
-         * @returns {Array<string>}
-         */
-        getAllIds(): Array<string>;
-        /**
-         * Returns amount of stored entries
-         * @returns {number}
-         */
-        getNumEntries(): number;
-    }
-}
-declare module "shapez/game/time/base_game_speed" {
-    export class BaseGameSpeed extends BasicSerializableObject {
-        /** @returns {string} */
-        static getId(): string;
-        static getSchema(): {};
-        /**
-         * @param {GameRoot} root
-         */
-        constructor(root: GameRoot);
-        root: GameRoot;
-        getId(): any;
-        initializeAfterDeserialize(root: any): void;
-        /**
-         * Returns the time multiplier
-         */
-        getTimeMultiplier(): number;
-        /**
-         * Returns how many logic steps there may be queued
-         */
-        getMaxLogicStepsInQueue(): number;
-        /** @returns {BaseGameSpeed} */
-        newSpeed(instance: any): BaseGameSpeed;
-    }
-    import { BasicSerializableObject } from "shapez/savegame/serialization";
-    import { GameRoot } from "shapez/game/root";
-}
-declare module "shapez/game/component" {
-    export abstract class Component extends BasicSerializableObject {
-        /**
-         * Returns the components unique id
-         * @returns {string}
-         * @abstract
-         */
-        static getId(): string;
-        /**
-         * Should return the schema used for serialization
-         */
-        static getSchema(): {};
-        /**
-         * Fixes typeof DerivedComponent is not assignable to typeof Component, compiled out
-         * in non-dev builds
-         */
-        constructor(...args: any[]);
-        /**
-         * Copy the current state to another component
-         * @param {Component} otherComponent
-         */
-        copyAdditionalStateTo(otherComponent: Component): void;
-        /**
-         * Clears all items and state
-         */
-        clear(): void;
-        /**
-         * Returns a string representing the components data, only in dev builds
-         * @returns {string}
-         */
-        getDebugString(): string;
-    }
-    /**
-     * TypeScript does not support Abstract Static methods (https://github.com/microsoft/TypeScript/issues/34516)
-     * One workaround is to declare the type of the component and reference that for static methods
-     */
-    export type StaticComponent = typeof Component;
-    import { BasicSerializableObject } from "shapez/savegame/serialization";
-}
-declare module "shapez/game/base_item" {
-    /**
-     * Class for items on belts etc. Not an entity for performance reasons
-     */
-    export abstract class BaseItem extends BasicSerializableObject {
-        static getId(): string;
-        _type: any;
-        /** @returns {ItemType} **/
-        getItemType(): any;
-        /**
-         * Returns a string id of the item
-         * @returns {string}
-         * @abstract
-         */
-        abstract getAsCopyableKey(): string;
-        /**
-         * Returns if the item equals the other itme
-         * @param {BaseItem} other
-         * @returns {boolean}
-         */
-        equals(other: BaseItem): boolean;
-        /**
-         * Override for custom comparison
-         * @param {BaseItem} other
-         * @returns {boolean}
-         * @abstract
-         */
-        abstract equalsImpl(other: BaseItem): boolean;
-        /**
-         * Draws the item to a canvas
-         * @param {CanvasRenderingContext2D} context
-         * @param {number} size
-         * @abstract
-         */
-        abstract drawFullSizeOnCanvas(context: CanvasRenderingContext2D, size: number): void;
-        /**
-         * Draws the item at the given position
-         * @param {number} x
-         * @param {number} y
-         * @param {DrawParameters} parameters
-         * @param {number=} diameter
-         */
-        drawItemCenteredClipped(
-            x: number,
-            y: number,
-            parameters: DrawParameters,
-            diameter?: number | undefined
-        ): void;
-        /**
-         * INTERNAL
-         * @param {number} x
-         * @param {number} y
-         * @param {DrawParameters} parameters
-         * @param {number=} diameter
-         * @abstract
-         */
-        abstract drawItemCenteredImpl(
-            x: number,
-            y: number,
-            parameters: DrawParameters,
-            diameter?: number | undefined
-        ): void;
-        getBackgroundColorAsResource(): string;
-    }
-    import { BasicSerializableObject } from "shapez/savegame/serialization";
-    import { DrawParameters } from "shapez/core/draw_parameters";
-}
 declare module "shapez/core/rectangle" {
     export class Rectangle {
         [Symbol.iterator](): IterableIterator<readonly [number, number]>;
@@ -1614,6 +1423,39 @@ declare module "shapez/core/rectangle" {
     }
     import { Vector } from "shapez/core/vector";
 }
+declare module "shapez/core/draw_parameters" {
+    /**
+     * @typedef {import("shapez/game/root").GameRoot} GameRoot
+     * @typedef {import("shapez/core/rectangle").Rectangle} Rectangle
+     */
+    export class DrawParameters {
+        constructor({
+            context,
+            visibleRect,
+            desiredAtlasScale,
+            zoomLevel,
+            root,
+        }: {
+            context: any;
+            visibleRect: any;
+            desiredAtlasScale: any;
+            zoomLevel: any;
+            root: any;
+        });
+        /** @type {CanvasRenderingContext2D} */
+        context: CanvasRenderingContext2D;
+        /** @type {Rectangle} */
+        visibleRect: Rectangle;
+        /** @type {string} */
+        desiredAtlasScale: string;
+        /** @type {number} */
+        zoomLevel: number;
+        /** @type {GameRoot} */
+        root: GameRoot;
+    }
+    export type GameRoot = import("shapez/game/root").GameRoot;
+    export type Rectangle = import("shapez/core/rectangle").Rectangle;
+}
 declare module "shapez/platform/sound" {
     export namespace SOUNDS {
         export const uiClick: string;
@@ -1628,10 +1470,11 @@ declare module "shapez/platform/sound" {
         export const placeBuilding: string;
         export const placeBelt: string;
         export const copy: string;
+        export const unlockUpgrade: string;
+        export const tutorialStep: string;
     }
     export namespace MUSIC {
         export const theme: string;
-        export const menu: string;
     }
     export class SoundInstanceInterface {
         constructor(key: any, url: any);
@@ -1734,6 +1577,1683 @@ declare module "shapez/platform/sound" {
     import { Vector } from "shapez/core/vector";
     import { GameRoot } from "shapez/game/root";
 }
+declare module "shapez/core/globals" {
+    /**
+     * @param {Application} app
+     */
+    export function setGlobalApp(app: Application): void;
+    /**
+     * Used for the bug reporter, and the click detector which both have no handles to this.
+     * It would be nicer to have no globals, but this is the only one. I promise!
+     * @type {Application} */
+    export let GLOBAL_APP: Application;
+    export namespace BUILD_OPTIONS {
+        export const HAVE_ASSERT: any;
+        export const APP_ENVIRONMENT: any;
+        export const CHINA_VERSION: any;
+        export const WEGAME_VERSION: any;
+        export const IS_DEV: any;
+        export const IS_RELEASE: any;
+        export const IS_BROWSER: any;
+        export const IS_STANDALONE: any;
+        export const BUILD_TIME: any;
+        export const BUILD_COMMIT_HASH: any;
+        export const BUILD_VERSION: any;
+        export const ALL_UI_IMAGES: any;
+    }
+    import { Application } from "shapez/application";
+}
+declare module "shapez/core/click_detector" {
+    export const MAX_MOVE_DISTANCE_PX: 20 | 80;
+    export namespace clickDetectorGlobals {
+        export const lastTouchTime: number;
+    }
+    /**
+     * Click detector creation payload typehints
+     * @typedef {{
+     *  consumeEvents?: boolean,
+     *  preventDefault?: boolean,
+     *  applyCssClass?: string,
+     *  captureTouchmove?: boolean,
+     *  targetOnly?: boolean,
+     *  maxDistance?: number,
+     *  clickSound?: string,
+     *  preventClick?: boolean,
+     * }} ClickDetectorConstructorArgs
+     */
+    export class ClickDetector {
+        /**
+         * Extracts the mous position from an event
+         * @param {TouchEvent|MouseEvent} event
+         * @returns {Vector} The client space position
+         */
+        static extractPointerPosition(event: TouchEvent | MouseEvent): Vector;
+        /**
+         *
+         * @param {Element} element
+         * @param {object} param1
+         * @param {boolean=} param1.consumeEvents Whether to call stopPropagation
+         *                                       (Useful for nested elements where the parent has a click handler as wel)
+         * @param {boolean=} param1.preventDefault  Whether to call preventDefault (Usually makes the handler faster)
+         * @param {string=} param1.applyCssClass The css class to add while the element is pressed
+         * @param {boolean=} param1.captureTouchmove Whether to capture touchmove events as well
+         * @param {boolean=} param1.targetOnly Whether to also accept clicks on child elements (e.target !== element)
+         * @param {number=} param1.maxDistance The maximum distance in pixels to accept clicks
+         * @param {string=} param1.clickSound Sound key to play on touchdown
+         * @param {boolean=} param1.preventClick Whether to prevent click events
+         */
+        constructor(
+            element: Element,
+            {
+                consumeEvents,
+                preventDefault,
+                applyCssClass,
+                captureTouchmove,
+                targetOnly,
+                maxDistance,
+                clickSound,
+                preventClick,
+            }: {
+                consumeEvents?: boolean | undefined;
+                preventDefault?: boolean | undefined;
+                applyCssClass?: string | undefined;
+                captureTouchmove?: boolean | undefined;
+                targetOnly?: boolean | undefined;
+                maxDistance?: number | undefined;
+                clickSound?: string | undefined;
+                preventClick?: boolean | undefined;
+            }
+        );
+        clickDownPosition: Vector;
+        consumeEvents: boolean;
+        preventDefault: boolean;
+        applyCssClass: string;
+        captureTouchmove: boolean;
+        targetOnly: boolean;
+        clickSound: string;
+        maxDistance: number;
+        preventClick: boolean;
+        click: Signal;
+        rightClick: Signal;
+        touchstart: Signal;
+        touchmove: Signal;
+        touchend: Signal;
+        touchcancel: Signal;
+        touchstartSimple: Signal;
+        touchmoveSimple: Signal;
+        touchendSimple: Signal;
+        clickStartTime: number;
+        cancelled: boolean;
+        /**
+         * Cleans up all event listeners of this detector
+         */
+        cleanup(): void;
+        element: HTMLElement;
+        /**
+         *
+         * @param {Event} event
+         */
+        internalPreventClick(event: Event): void;
+        /**
+         * Internal method to get the options to pass to an event listener
+         */
+        internalGetEventListenerOptions(): {
+            capture: boolean;
+            passive: boolean;
+        };
+        /**
+         * Binds the click detector to an element
+         * @param {HTMLElement} element
+         */
+        internalBindTo(element: HTMLElement): void;
+        handlerTouchStart: any;
+        handlerTouchEnd: any;
+        handlerTouchMove: any;
+        handlerTouchCancel: any;
+        handlerPreventClick: any;
+        /**
+         * Returns if the bound element is currently in the DOM.
+         */
+        internalIsDomElementAttached(): boolean;
+        /**
+         * Checks if the given event is relevant for this detector
+         * @param {TouchEvent|MouseEvent} event
+         */
+        internalEventPreHandler(event: TouchEvent | MouseEvent, expectedRemainingTouches?: number): boolean;
+        /**
+         * Cacnels all ongoing events on this detector
+         */
+        cancelOngoingEvents(): void;
+        /**
+         * Internal pointer down handler
+         * @param {TouchEvent|MouseEvent} event
+         */
+        internalOnPointerDown(event: TouchEvent | MouseEvent): boolean;
+        /**
+         * Internal pointer move handler
+         * @param {TouchEvent|MouseEvent} event
+         */
+        internalOnPointerMove(event: TouchEvent | MouseEvent): boolean;
+        /**
+         * Internal pointer end handler
+         * @param {TouchEvent|MouseEvent} event
+         */
+        internalOnPointerEnd(event: TouchEvent | MouseEvent): boolean;
+        /**
+         * Internal touch cancel handler
+         * @param {TouchEvent|MouseEvent} event
+         */
+        internalOnTouchCancel(event: TouchEvent | MouseEvent): boolean;
+    }
+    /**
+     * Click detector creation payload typehints
+     */
+    export type ClickDetectorConstructorArgs = {
+        consumeEvents?: boolean;
+        preventDefault?: boolean;
+        applyCssClass?: string;
+        captureTouchmove?: boolean;
+        targetOnly?: boolean;
+        maxDistance?: number;
+        clickSound?: string;
+        preventClick?: boolean;
+    };
+    import { Vector } from "shapez/core/vector";
+    import { Signal } from "shapez/core/signal";
+}
+declare module "shapez/core/input_receiver" {
+    export class InputReceiver {
+        constructor(context?: string);
+        context: string;
+        backButton: Signal;
+        keydown: Signal;
+        keyup: Signal;
+        pageBlur: Signal;
+        destroyed: Signal;
+        paste: Signal;
+        cleanup(): void;
+    }
+    import { Signal } from "shapez/core/signal";
+}
+declare module "shapez/game/key_action_mapper" {
+    export function keyToKeyCode(str: any): any;
+    /**
+     * Returns a keycode -> string
+     * @param {number} code
+     * @returns {string}
+     */
+    export function getStringForKeyCode(code: number): string;
+    export namespace KEYCODES {
+        export const Tab: number;
+        export const Enter: number;
+        export const Shift: number;
+        export const Ctrl: number;
+        export const Alt: number;
+        export const Escape: number;
+        export const Space: number;
+        export const ArrowLeft: number;
+        export const ArrowUp: number;
+        export const ArrowRight: number;
+        export const ArrowDown: number;
+        export const Delete: number;
+        export const F1: number;
+        export const F2: number;
+        export const F3: number;
+        export const F4: number;
+        export const F5: number;
+        export const F6: number;
+        export const F7: number;
+        export const F8: number;
+        export const F9: number;
+        export const F10: number;
+        export const F11: number;
+        export const F12: number;
+        export const Plus: number;
+        export const Minus: number;
+    }
+    export namespace KEYMAPPINGS {
+        export const mods: {};
+        export namespace general {
+            export namespace confirm {
+                const keyCode: typeof KEYCODES.Enter;
+                export { keyCode };
+            }
+            export namespace back {
+                const keyCode_1: typeof KEYCODES.Escape;
+                export { keyCode_1 as keyCode };
+                export const builtin: boolean;
+            }
+        }
+        export namespace ingame {
+            export namespace menuOpenShop {
+                const keyCode_2: any;
+                export { keyCode_2 as keyCode };
+            }
+            export namespace menuOpenStats {
+                const keyCode_3: any;
+                export { keyCode_3 as keyCode };
+            }
+            export namespace menuClose {
+                const keyCode_4: any;
+                export { keyCode_4 as keyCode };
+            }
+            export namespace toggleHud {
+                const keyCode_5: typeof KEYCODES.F2;
+                export { keyCode_5 as keyCode };
+            }
+            export namespace exportScreenshot {
+                const keyCode_6: typeof KEYCODES.F3;
+                export { keyCode_6 as keyCode };
+            }
+            export namespace toggleFPSInfo {
+                const keyCode_7: typeof KEYCODES.F4;
+                export { keyCode_7 as keyCode };
+            }
+            export namespace switchLayers {
+                const keyCode_8: any;
+                export { keyCode_8 as keyCode };
+            }
+            export namespace showShapeTooltip {
+                const keyCode_9: typeof KEYCODES.Alt;
+                export { keyCode_9 as keyCode };
+            }
+        }
+        export namespace navigation {
+            export namespace mapMoveUp {
+                const keyCode_10: any;
+                export { keyCode_10 as keyCode };
+            }
+            export namespace mapMoveRight {
+                const keyCode_11: any;
+                export { keyCode_11 as keyCode };
+            }
+            export namespace mapMoveDown {
+                const keyCode_12: any;
+                export { keyCode_12 as keyCode };
+            }
+            export namespace mapMoveLeft {
+                const keyCode_13: any;
+                export { keyCode_13 as keyCode };
+            }
+            export namespace mapMoveFaster {
+                const keyCode_14: typeof KEYCODES.Shift;
+                export { keyCode_14 as keyCode };
+            }
+            export namespace centerMap {
+                const keyCode_15: typeof KEYCODES.Space;
+                export { keyCode_15 as keyCode };
+            }
+            export namespace mapZoomIn {
+                const keyCode_16: typeof KEYCODES.Plus;
+                export { keyCode_16 as keyCode };
+                export const repeated: boolean;
+            }
+            export namespace mapZoomOut {
+                const keyCode_17: typeof KEYCODES.Minus;
+                export { keyCode_17 as keyCode };
+                const repeated_1: boolean;
+                export { repeated_1 as repeated };
+            }
+            export namespace createMarker {
+                const keyCode_18: any;
+                export { keyCode_18 as keyCode };
+            }
+        }
+        export namespace buildings {
+            export namespace constant_producer {
+                const keyCode_19: any;
+                export { keyCode_19 as keyCode };
+            }
+            export namespace goal_acceptor {
+                const keyCode_20: any;
+                export { keyCode_20 as keyCode };
+            }
+            export namespace block {
+                const keyCode_21: any;
+                export { keyCode_21 as keyCode };
+            }
+            export namespace belt {
+                const keyCode_22: any;
+                export { keyCode_22 as keyCode };
+            }
+            export namespace balancer {
+                const keyCode_23: any;
+                export { keyCode_23 as keyCode };
+            }
+            export namespace underground_belt {
+                const keyCode_24: any;
+                export { keyCode_24 as keyCode };
+            }
+            export namespace miner {
+                const keyCode_25: any;
+                export { keyCode_25 as keyCode };
+            }
+            export namespace cutter {
+                const keyCode_26: any;
+                export { keyCode_26 as keyCode };
+            }
+            export namespace rotater {
+                const keyCode_27: any;
+                export { keyCode_27 as keyCode };
+            }
+            export namespace stacker {
+                const keyCode_28: any;
+                export { keyCode_28 as keyCode };
+            }
+            export namespace mixer {
+                const keyCode_29: any;
+                export { keyCode_29 as keyCode };
+            }
+            export namespace painter {
+                const keyCode_30: any;
+                export { keyCode_30 as keyCode };
+            }
+            export namespace trash {
+                const keyCode_31: any;
+                export { keyCode_31 as keyCode };
+            }
+            export namespace item_producer {
+                const keyCode_32: any;
+                export { keyCode_32 as keyCode };
+            }
+            export namespace storage {
+                const keyCode_33: any;
+                export { keyCode_33 as keyCode };
+            }
+            export namespace reader {
+                const keyCode_34: any;
+                export { keyCode_34 as keyCode };
+            }
+            export namespace lever {
+                const keyCode_35: any;
+                export { keyCode_35 as keyCode };
+            }
+            export namespace filter {
+                const keyCode_36: any;
+                export { keyCode_36 as keyCode };
+            }
+            export namespace display {
+                const keyCode_37: any;
+                export { keyCode_37 as keyCode };
+            }
+            export namespace wire {
+                const keyCode_38: any;
+                export { keyCode_38 as keyCode };
+            }
+            export namespace wire_tunnel {
+                const keyCode_39: any;
+                export { keyCode_39 as keyCode };
+            }
+            export namespace constant_signal {
+                const keyCode_40: any;
+                export { keyCode_40 as keyCode };
+            }
+            export namespace logic_gate {
+                const keyCode_41: any;
+                export { keyCode_41 as keyCode };
+            }
+            export namespace virtual_processor {
+                const keyCode_42: any;
+                export { keyCode_42 as keyCode };
+            }
+            export namespace analyzer {
+                const keyCode_43: any;
+                export { keyCode_43 as keyCode };
+            }
+            export namespace comparator {
+                const keyCode_44: any;
+                export { keyCode_44 as keyCode };
+            }
+            export namespace transistor {
+                const keyCode_45: any;
+                export { keyCode_45 as keyCode };
+            }
+        }
+        export namespace placement {
+            export namespace pipette {
+                const keyCode_46: any;
+                export { keyCode_46 as keyCode };
+            }
+            export namespace rotateWhilePlacing {
+                const keyCode_47: any;
+                export { keyCode_47 as keyCode };
+            }
+            export namespace rotateInverseModifier {
+                const keyCode_48: typeof KEYCODES.Shift;
+                export { keyCode_48 as keyCode };
+            }
+            export namespace rotateToUp {
+                const keyCode_49: typeof KEYCODES.ArrowUp;
+                export { keyCode_49 as keyCode };
+            }
+            export namespace rotateToDown {
+                const keyCode_50: typeof KEYCODES.ArrowDown;
+                export { keyCode_50 as keyCode };
+            }
+            export namespace rotateToRight {
+                const keyCode_51: typeof KEYCODES.ArrowRight;
+                export { keyCode_51 as keyCode };
+            }
+            export namespace rotateToLeft {
+                const keyCode_52: typeof KEYCODES.ArrowLeft;
+                export { keyCode_52 as keyCode };
+            }
+            export namespace cycleBuildingVariants {
+                const keyCode_53: any;
+                export { keyCode_53 as keyCode };
+            }
+            export namespace cycleBuildings {
+                const keyCode_54: typeof KEYCODES.Tab;
+                export { keyCode_54 as keyCode };
+            }
+            export namespace switchDirectionLockSide {
+                const keyCode_55: any;
+                export { keyCode_55 as keyCode };
+            }
+            export namespace copyWireValue {
+                const keyCode_56: any;
+                export { keyCode_56 as keyCode };
+            }
+        }
+        export namespace massSelect {
+            export namespace massSelectStart {
+                const keyCode_57: typeof KEYCODES.Ctrl;
+                export { keyCode_57 as keyCode };
+            }
+            export namespace massSelectSelectMultiple {
+                const keyCode_58: typeof KEYCODES.Shift;
+                export { keyCode_58 as keyCode };
+            }
+            export namespace massSelectCopy {
+                const keyCode_59: any;
+                export { keyCode_59 as keyCode };
+            }
+            export namespace massSelectCut {
+                const keyCode_60: any;
+                export { keyCode_60 as keyCode };
+            }
+            export namespace massSelectClear {
+                const keyCode_61: any;
+                export { keyCode_61 as keyCode };
+            }
+            export namespace confirmMassDelete {
+                const keyCode_62: typeof KEYCODES.Delete;
+                export { keyCode_62 as keyCode };
+            }
+            export namespace pasteLastBlueprint {
+                const keyCode_63: any;
+                export { keyCode_63 as keyCode };
+            }
+        }
+        export namespace placementModifiers {
+            export namespace lockBeltDirection {
+                const keyCode_64: typeof KEYCODES.Shift;
+                export { keyCode_64 as keyCode };
+            }
+            export namespace placementDisableAutoOrientation {
+                const keyCode_65: typeof KEYCODES.Ctrl;
+                export { keyCode_65 as keyCode };
+            }
+            export namespace placeMultiple {
+                const keyCode_66: typeof KEYCODES.Shift;
+                export { keyCode_66 as keyCode };
+            }
+            export namespace placeInverse {
+                const keyCode_67: typeof KEYCODES.Alt;
+                export { keyCode_67 as keyCode };
+            }
+        }
+    }
+    export const KEYCODE_LMB: 1;
+    export const KEYCODE_MMB: 2;
+    export const KEYCODE_RMB: 3;
+    export class Keybinding {
+        /**
+         *
+         * @param {KeyActionMapper} keyMapper
+         * @param {Application} app
+         * @param {object} param0
+         * @param {number} param0.keyCode
+         * @param {boolean=} param0.builtin
+         * @param {boolean=} param0.repeated
+         * @param {{ shift?: boolean; alt?: boolean; ctrl?: boolean; }=} param0.modifiers
+         */
+        constructor(
+            keyMapper: KeyActionMapper,
+            app: Application,
+            {
+                keyCode,
+                builtin,
+                repeated,
+                modifiers,
+            }: {
+                keyCode: number;
+                builtin?: boolean | undefined;
+                repeated?: boolean | undefined;
+                modifiers?:
+                    | {
+                          shift?: boolean;
+                          alt?: boolean;
+                          ctrl?: boolean;
+                      }
+                    | undefined;
+            }
+        );
+        keyMapper: KeyActionMapper;
+        app: Application;
+        keyCode: number;
+        builtin: boolean;
+        repeated: boolean;
+        modifiers: {
+            shift?: boolean;
+            alt?: boolean;
+            ctrl?: boolean;
+        };
+        signal: Signal;
+        toggled: Signal;
+        /**
+         * Returns whether this binding is currently pressed
+         * @returns {boolean}
+         */
+        get pressed(): boolean;
+        /**
+         * Adds an event listener
+         * @param {function() : void} receiver
+         * @param {object=} scope
+         */
+        add(receiver: () => void, scope?: object | undefined): void;
+        /**
+         * Adds an event listener
+         * @param {function() : void} receiver
+         * @param {object=} scope
+         */
+        addToTop(receiver: () => void, scope?: object | undefined): void;
+        /**
+         * @param {Element} elem
+         * @returns {HTMLElement} the created element, or null if the keybindings are not shown
+         *  */
+        appendLabelToElement(elem: Element): HTMLElement;
+        /**
+         * Returns the key code as a nice string
+         */
+        getKeyCodeString(): string;
+        /**
+         * Remvoes all signal receivers
+         */
+        clearSignalReceivers(): void;
+    }
+    export class KeyActionMapper {
+        /**
+         *
+         * @param {GameRoot} root
+         * @param {InputReceiver} inputReciever
+         */
+        constructor(root: GameRoot, inputReciever: InputReceiver);
+        root: GameRoot;
+        inputReceiver: InputReceiver;
+        /** @type {Object.<string, Keybinding>} */
+        keybindings: {
+            [x: string]: Keybinding;
+        };
+        /**
+         * Returns all keybindings starting with the given id
+         * @param {string} pattern
+         * @returns {Array<Keybinding>}
+         */
+        getKeybindingsStartingWith(pattern: string): Array<Keybinding>;
+        /**
+         * Forwards the given events to the other mapper (used in tooltips)
+         * @param {KeyActionMapper} receiver
+         * @param {Array<string>} bindings
+         */
+        forward(receiver: KeyActionMapper, bindings: Array<string>): void;
+        cleanup(): void;
+        onPageBlur(): void;
+        /**
+         * Internal keydown handler
+         * @param {object} param0
+         * @param {number} param0.keyCode
+         * @param {boolean} param0.shift
+         * @param {boolean} param0.alt
+         * @param {boolean} param0.ctrl
+         * @param {boolean=} param0.initial
+         */
+        handleKeydown({
+            keyCode,
+            shift,
+            alt,
+            ctrl,
+            initial,
+        }: {
+            keyCode: number;
+            shift: boolean;
+            alt: boolean;
+            ctrl: boolean;
+            initial?: boolean | undefined;
+        }): string;
+        /**
+         * Internal keyup handler
+         * @param {object} param0
+         * @param {number} param0.keyCode
+         * @param {boolean} param0.shift
+         * @param {boolean} param0.alt
+         */
+        handleKeyup({ keyCode, shift, alt }: { keyCode: number; shift: boolean; alt: boolean }): void;
+        /**
+         * Returns a given keybinding
+         * @param {{ keyCode: number }} binding
+         * @returns {Keybinding}
+         */
+        getBinding(binding: { keyCode: number }): Keybinding;
+        /**
+         * Returns a given keybinding
+         * @param {string} id
+         * @returns {Keybinding}
+         */
+        getBindingById(id: string): Keybinding;
+    }
+    import { Application } from "shapez/application";
+    import { Signal } from "shapez/core/signal";
+    import { GameRoot } from "shapez/game/root";
+    import { InputReceiver } from "shapez/core/input_receiver";
+}
+declare module "shapez/game/hud/base_hud_part" {
+    export abstract class BaseHUDPart {
+        /**
+         * @param {GameRoot} root
+         */
+        constructor(root: GameRoot);
+        root: GameRoot;
+        /** @type {Array<ClickDetector>} */
+        clickDetectors: Array<ClickDetector>;
+        /**
+         * Should create all require elements
+         * @param {HTMLElement} parent
+         */
+        createElements(parent: HTMLElement): void;
+        /**
+         * Should initialize the element, called *after* the elements have been created
+         * @abstract
+         */
+        abstract initialize(): void;
+        /**
+         * Should update any required logic
+         */
+        update(): void;
+        /**
+         * Should draw the hud
+         * @param {DrawParameters} parameters
+         */
+        draw(parameters: DrawParameters): void;
+        /**
+         * Should draw any overlays (screen space)
+         * @param {DrawParameters} parameters
+         */
+        drawOverlays(parameters: DrawParameters): void;
+        /**
+         * Should return true if the widget has a modal dialog opened and thus
+         * the game does not need to update / redraw
+         * @returns {boolean}
+         */
+        shouldPauseRendering(): boolean;
+        /**
+         * Should return false if the game should be paused
+         * @returns {boolean}
+         */
+        shouldPauseGame(): boolean;
+        /**
+         * Should return true if this overlay is open and currently blocking any user interaction
+         */
+        isBlockingOverlay(): boolean;
+        /**
+         * Cleans up the hud element, if overridden make sure to call super.cleanup
+         */
+        cleanup(): void;
+        /**
+         * Cleans up all click detectors
+         */
+        cleanupClickDetectors(): void;
+        /**
+         * Should close the element, in case its supported
+         */
+        close(): void;
+        /**
+         * Helper method to construct a new click detector
+         * @param {Element} element The element to listen on
+         * @param {function} handler The handler to call on this object
+         * @param {import("shapez/core/click_detector").ClickDetectorConstructorArgs=} args Click detector arguments
+         *
+         */
+        trackClicks(
+            element: Element,
+            handler: Function,
+            args?: import("shapez/core/click_detector").ClickDetectorConstructorArgs | undefined
+        ): void;
+        /**
+         * Registers a new click detector
+         * @param {ClickDetector} detector
+         */
+        registerClickDetector(detector: ClickDetector): void;
+        /**
+         * Closes this element when its background is clicked
+         * @param {HTMLElement} element
+         * @param {function} closeMethod
+         */
+        closeOnBackgroundClick(element: HTMLElement, closeMethod?: Function): void;
+        /**
+         * Forwards the game speed keybindings so you can toggle pause / Fastforward
+         * in the building tooltip and such
+         * @param {KeyActionMapper} sourceMapper
+         */
+        forwardGameSpeedKeybindings(sourceMapper: KeyActionMapper): void;
+        /**
+         * Forwards the map movement keybindings so you can move the map with the
+         * arrow keys
+         * @param {KeyActionMapper} sourceMapper
+         */
+        forwardMapMovementKeybindings(sourceMapper: KeyActionMapper): void;
+    }
+    import { GameRoot } from "shapez/game/root";
+    import { ClickDetector } from "shapez/core/click_detector";
+    import { DrawParameters } from "shapez/core/draw_parameters";
+    import { KeyActionMapper } from "shapez/game/key_action_mapper";
+}
+declare module "shapez/core/state_manager" {
+    /**
+     * This is the main state machine which drives the game states.
+     */
+    export class StateManager {
+        /**
+         * @param {Application} app
+         */
+        constructor(app: Application);
+        app: Application;
+        /** @type {GameState} */
+        currentState: GameState;
+        /** @type {Object.<string, new() => GameState>} */
+        stateClasses: {
+            [x: string]: new () => GameState;
+        };
+        /**
+         * Registers a new state class, should be a GameState derived class
+         * @param {object} stateClass
+         */
+        register(stateClass: object): void;
+        /**
+         * Constructs a new state or returns the instance from the cache
+         * @param {string} key
+         */
+        constructState(key: string): GameState;
+        /**
+         * Moves to a given state
+         * @param {string} key State Key
+         */
+        moveToState(key: string, payload?: {}): boolean;
+        /**
+         * Returns the current state
+         * @returns {GameState}
+         */
+        getCurrentState(): GameState;
+    }
+    import { Application } from "shapez/application";
+    import { GameState } from "shapez/core/game_state";
+}
+declare module "shapez/core/request_channel" {
+    export const PROMISE_ABORTED: "promise-aborted";
+    export class RequestChannel {
+        /** @type {Array<Promise>} */
+        pendingPromises: Array<Promise<any>>;
+        /**
+         *
+         * @param {Promise<any>} promise
+         * @returns {Promise<any>}
+         */
+        watch(promise: Promise<any>): Promise<any>;
+        cancelAll(): void;
+    }
+}
+declare module "shapez/core/game_state" {
+    /**
+     * Basic state of the game state machine. This is the base of the whole game
+     */
+    export abstract class GameState {
+        /**
+         * Constructs a new state with the given id
+         * @param {string} key The id of the state. We use ids to refer to states because otherwise we get
+         *                     circular references
+         */
+        constructor(key: string);
+        key: string;
+        /** @type {StateManager} */
+        stateManager: StateManager;
+        /** @type {Application} */
+        app: Application;
+        fadingOut: boolean;
+        /** @type {Array<ClickDetector>} */
+        clickDetectors: Array<ClickDetector>;
+        inputReciever: InputReceiver;
+        asyncChannel: RequestChannel;
+        /**
+         * Returns the states key
+         * @returns {string}
+         */
+        getKey(): string;
+        /**
+         * Returns the html element of the state
+         * @returns {HTMLElement}
+         */
+        getDivElement(): HTMLElement;
+        /**
+         * Transfers to a new state
+         * @param {string} stateKey The id of the new state
+         */
+        moveToState(stateKey: string, payload?: {}, skipFadeOut?: boolean): void;
+        /**
+         * Tracks clicks on a given element and calls the given callback *on this state*.
+         * If you want to call another function wrap it inside a lambda.
+         * @param {Element} element The element to track clicks on
+         * @param {function():void} handler The handler to call
+         * @param {import("shapez/core/click_detector").ClickDetectorConstructorArgs=} args Click detector arguments
+         */
+        trackClicks(
+            element: Element,
+            handler: () => void,
+            args?: import("shapez/core/click_detector").ClickDetectorConstructorArgs | undefined
+        ): void;
+        /**
+         * Cancels all promises on the api as well as our async channel
+         */
+        cancelAllAsyncOperations(): void;
+        /**
+         * Callback when entering the state, to be overriddemn
+         * @param {any} payload Arbitrary data passed from the state which we are transferring from
+         */
+        onEnter(payload: any): void;
+        /**
+         * Callback when leaving the state
+         */
+        onLeave(): void;
+        /**
+         * Callback when the app got paused (on android, this means in background)
+         */
+        onAppPause(): void;
+        /**
+         * Callback when the app got resumed (on android, this means in foreground again)
+         */
+        onAppResume(): void;
+        /**
+         * Render callback
+         * @param {number} dt Delta time in ms since last render
+         */
+        onRender(dt: number): void;
+        /**
+         * Background tick callback, called while the game is inactiev
+         * @param {number} dt Delta time in ms since last tick
+         */
+        onBackgroundTick(dt: number): void;
+        /**
+         * Called when the screen resized
+         * @param {number} w window/screen width
+         * @param {number} h window/screen height
+         */
+        onResized(w: number, h: number): void;
+        /**
+         * Internal backbutton handler, called when the hardware back button is pressed or
+         * the escape key is pressed
+         */
+        onBackButton(): void;
+        /**
+         * Should return how many mulliseconds to fade in / out the state. Not recommended to override!
+         * @returns {number} Time in milliseconds to fade out
+         */
+        getInOutFadeTime(): number;
+        /**
+         * Should return whether to fade in the game state. This will then apply the right css classes
+         * for the fadein.
+         * @returns {boolean}
+         */
+        getHasFadeIn(): boolean;
+        /**
+         * Should return whether to fade out the game state. This will then apply the right css classes
+         * for the fadeout and wait the delay before moving states
+         * @returns {boolean}
+         */
+        getHasFadeOut(): boolean;
+        /**
+         * Returns if this state should get paused if it does not have focus
+         * @returns {boolean} true to pause the updating of the game
+         */
+        getPauseOnFocusLost(): boolean;
+        /**
+         * Should return the html code of the state.
+         * @returns {string}
+         * @abstract
+         */
+        abstract getInnerHTML(): string;
+        /**
+         * Returns if the state has an unload confirmation, this is the
+         * "Are you sure you want to leave the page" message.
+         */
+        getHasUnloadConfirmation(): boolean;
+        /**
+         * Should return the theme music for this state
+         * @returns {string|null}
+         */
+        getThemeMusic(): string | null;
+        /**
+         * Should return true if the player is currently ingame
+         * @returns {boolean}
+         */
+        getIsIngame(): boolean;
+        /**
+         * Should return whether to clear the whole body content before entering the state.
+         * @returns {boolean}
+         */
+        getRemovePreviousContent(): boolean;
+        /**
+         * Internal callback from the manager. Do not override!
+         * @param {StateManager} stateManager
+         */
+        internalRegisterCallback(stateManager: StateManager, app: any): void;
+        /**
+         * Internal callback when entering the state. Do not override!
+         * @param {any} payload Arbitrary data passed from the state which we are transferring from
+         * @param {boolean} callCallback Whether to call the onEnter callback
+         */
+        internalEnterCallback(payload: any, callCallback?: boolean): void;
+        htmlElement: HTMLElement;
+        /**
+         * Internal callback when the state is left. Do not override!
+         */
+        internalLeaveCallback(): void;
+        /**
+         * Internal app pause callback
+         */
+        internalOnAppPauseCallback(): void;
+        /**
+         * Internal app resume callback
+         */
+        internalOnAppResumeCallback(): void;
+        /**
+         * Cleans up all click detectors
+         */
+        internalCleanUpClickDetectors(): void;
+        /**
+         * Internal method to get the HTML of the game state.
+         * @returns {string}
+         */
+        internalGetFullHtml(): string;
+        /**
+         * Internal method to compute the time to fade in / out
+         * @returns {number} time to fade in / out in ms
+         */
+        internalGetFadeInOutTime(): number;
+    }
+    import { StateManager } from "shapez/core/state_manager";
+    import { Application } from "shapez/application";
+    import { ClickDetector } from "shapez/core/click_detector";
+    import { InputReceiver } from "shapez/core/input_receiver";
+    import { RequestChannel } from "shapez/core/request_channel";
+}
+declare module "shapez/game/game_loading_overlay" {
+    export class GameLoadingOverlay {
+        /**
+         *
+         * @param {Application} app
+         * @param {HTMLElement} parent
+         */
+        constructor(app: Application, parent: HTMLElement);
+        app: Application;
+        parent: HTMLElement;
+        /** @type {HTMLElement} */
+        element: HTMLElement;
+        /**
+         * Removes the overlay if its currently visible
+         */
+        removeIfAttached(): void;
+        /**
+         * Returns if the loading overlay is attached
+         */
+        isAttached(): HTMLElement;
+        /**
+         * Shows a super basic overlay
+         */
+        showBasic(): void;
+        /**
+         * Adds a text with 'loading' and a spinner
+         * @param {HTMLElement} element
+         */
+        internalAddSpinnerAndText(element: HTMLElement): void;
+        /**
+         * Adds a random hint
+         * @param {HTMLElement} element
+         */
+        internalAddHint(element: HTMLElement): void;
+        internalAddProgressIndicator(element: any): void;
+        loadingIndicator: HTMLSpanElement;
+    }
+    import { Application } from "shapez/application";
+}
+declare module "shapez/core/lzstring" {
+    export function compressU8(uncompressed: any): Uint8Array;
+    /**
+     * @param {string} uncompressed
+     * @param {number} header
+     */
+    export function compressU8WHeader(uncompressed: string, header: number): Uint8Array;
+    /**
+     *
+     * @param {Uint8Array} compressed
+     */
+    export function decompressU8WHeader(compressed: Uint8Array): string;
+    export function compressX64(input: any): string;
+    export function decompressX64(input: any): string;
+}
+declare module "shapez/core/sensitive_utils.encrypt" {
+    export function sha1(str: any): any;
+    export function getNameOfProvider(): any;
+    /**
+     * Computes the crc for a given string
+     * @param {string} str
+     */
+    export function computeCrc(str: string): string;
+    export const CRC_PREFIX: string;
+}
+declare module "shapez/platform/storage" {
+    export const FILE_NOT_FOUND: "file_not_found";
+    export abstract class StorageInterface {
+        constructor(app: any);
+        /** @type {Application} */
+        app: Application;
+        /**
+         * Initializes the storage
+         * @returns {Promise<void>}
+         * @abstract
+         */
+        abstract initialize(): Promise<void>;
+        /**
+         * Writes a string to a file asynchronously
+         * @param {string} filename
+         * @param {string} contents
+         * @returns {Promise<void>}
+         * @abstract
+         */
+        abstract writeFileAsync(filename: string, contents: string): Promise<void>;
+        /**
+         * Reads a string asynchronously. Returns Promise<FILE_NOT_FOUND> if file was not found.
+         * @param {string} filename
+         * @returns {Promise<string>}
+         * @abstract
+         */
+        abstract readFileAsync(filename: string): Promise<string>;
+        /**
+         * Tries to delete a file
+         * @param {string} filename
+         * @returns {Promise<void>}
+         */
+        deleteFileAsync(filename: string): Promise<void>;
+    }
+    import { Application } from "shapez/application";
+}
+declare module "shapez/savegame/savegame_compressor" {
+    /**
+     * @param {object} obj
+     */
+    export function compressObject(obj: object): {
+        keys: any[];
+        values: any[];
+        data: any;
+    };
+    /**
+     * @param {object} obj
+     */
+    export function decompressObject(obj: object): any;
+}
+declare module "shapez/webworkers/compression.worker" {
+    export {};
+}
+declare module "shapez/core/async_compression" {
+    export let compressionPrefix: string;
+    export const asyncCompressor: AsynCompression;
+    export type JobEntry = {
+        errorHandler: (arg0: any) => void;
+        resolver: (arg0: any) => void;
+        startTime: number;
+    };
+    /**
+     * @typedef {{
+     *   errorHandler: function(any) : void,
+     *   resolver: function(any) : void,
+     *   startTime: number
+     * }} JobEntry
+     */
+    class AsynCompression {
+        worker: any;
+        currentJobId: number;
+        /** @type {Object.<number, JobEntry>} */
+        currentJobs: {
+            [x: number]: JobEntry;
+        };
+        /**
+         * Compresses any object
+         * @param {any} obj
+         */
+        compressObjectAsync(obj: any): Promise<any>;
+        /**
+         * Queues a new job
+         * @param {string} job
+         * @param {any} data
+         * @returns {Promise<any>}
+         */
+        internalQueueJob(job: string, data: any): Promise<any>;
+    }
+    export {};
+}
+declare module "shapez/core/read_write_proxy" {
+    export class ReadWriteProxy {
+        /**
+         *
+         * @param {object} obj
+         */
+        static serializeObject(obj: object): string;
+        /**
+         *
+         * @param {object} text
+         */
+        static deserializeObject(text: object): any;
+        constructor(app: any, filename: any);
+        /** @type {Application} */
+        app: Application;
+        filename: any;
+        /** @type {object} */
+        currentData: object;
+        /**
+         * Store a debounced handler to prevent double writes
+         */
+        debouncedWrite: any;
+        /** @returns {ExplainedResult} */
+        verify(data: any): ExplainedResult;
+        getDefaultData(): {};
+        getCurrentVersion(): number;
+        /** @returns {ExplainedResult} */
+        migrate(data: any): ExplainedResult;
+        resetEverythingAsync(): Promise<void>;
+        /**
+         * Writes the data asychronously, fails if verify() fails.
+         * Debounces the operation by up to 50ms
+         * @returns {Promise<void>}
+         */
+        writeAsync(): Promise<void>;
+        /**
+         * Actually writes the data asychronously
+         * @returns {Promise<void>}
+         */
+        doWriteAsync(): Promise<void>;
+        readAsync(): Promise<any>;
+        /**
+         * Deletes the file
+         * @returns {Promise<void>}
+         */
+        deleteAsync(): Promise<void>;
+        /** @returns {ExplainedResult} */
+        internalVerifyBasicStructure(data: any): ExplainedResult;
+        /** @returns {ExplainedResult} */
+        internalVerifyEntry(data: any): ExplainedResult;
+    }
+    import { Application } from "shapez/application";
+    import { ExplainedResult } from "shapez/core/explained_result";
+}
+declare module "shapez/savegame/savegame_interface" {
+    export class BaseSavegameInterface {
+        /**
+         * Constructs an new interface for the given savegame
+         * @param {any} data
+         */
+        constructor(data: any);
+        /**
+         * Returns the interfaces version
+         */
+        getVersion(): void;
+        /**
+         * Returns the uncached json schema
+         * @returns {object}
+         */
+        getSchemaUncached(): object;
+        getValidator(): any;
+        data: any;
+        /**
+         * Validates the data
+         * @returns {boolean}
+         */
+        validate(): boolean;
+        /**
+         * Returns the time of last update
+         * @returns {number}
+         */
+        readLastUpdate(): number;
+        /**
+         * Returns the ingame time in seconds
+         * @returns {number}
+         */
+        readIngameTimeSeconds(): number;
+    }
+}
+declare module "shapez/savegame/schemas/1000" {
+    export class SavegameInterface_V1000 extends BaseSavegameInterface {
+        constructor(data: any);
+    }
+    import { BaseSavegameInterface } from "shapez/savegame/savegame_interface";
+}
+declare module "shapez/core/buffer_utils" {
+    /**
+     * Enables images smoothing on a context
+     * @param {CanvasRenderingContext2D} context
+     */
+    export function enableImageSmoothing(context: CanvasRenderingContext2D): void;
+    /**
+     * Disables image smoothing on a context
+     * @param {CanvasRenderingContext2D} context
+     */
+    export function disableImageSmoothing(context: CanvasRenderingContext2D): void;
+    /**
+     *
+     * @param {HTMLCanvasElement} canvas
+     */
+    export function getBufferVramUsageBytes(canvas: HTMLCanvasElement): number;
+    /**
+     * Returns stats on the allocated buffers
+     */
+    export function getBufferStats(): {
+        backlogKeys: number;
+        backlogSize: number;
+        vramUsage: number;
+        backlogVramUsage: number;
+        bufferCount: number;
+        numReused: number;
+        numCreated: number;
+    };
+    /**
+     * Clears the backlog buffers if they grew too much
+     */
+    export function clearBufferBacklog(): void;
+    /**
+     * Creates a new offscreen buffer
+     * @param {Number} w
+     * @param {Number} h
+     * @returns {[HTMLCanvasElement, CanvasRenderingContext2D]}
+     */
+    export function makeOffscreenBuffer(
+        w: number,
+        h: number,
+        {
+            smooth,
+            reusable,
+            label,
+        }: {
+            smooth?: boolean;
+            reusable?: boolean;
+            label?: string;
+        }
+    ): [HTMLCanvasElement, CanvasRenderingContext2D];
+    /**
+     * Frees a canvas
+     * @param {HTMLCanvasElement} canvas
+     */
+    export function registerCanvas(canvas: HTMLCanvasElement, context: any): void;
+    /**
+     * Frees a canvas
+     * @param {HTMLCanvasElement} canvas
+     */
+    export function freeCanvas(canvas: HTMLCanvasElement): void;
+    export type CanvasCacheEntry = {
+        canvas: HTMLCanvasElement;
+        context: CanvasRenderingContext2D;
+    };
+}
+declare module "shapez/core/sprites" {
+    export const ORIGINAL_SPRITE_SCALE: "0.75";
+    export const FULL_CLIP_RECT: Rectangle;
+    export abstract class BaseSprite {
+        /**
+         * Returns the raw handle
+         * @returns {HTMLImageElement|HTMLCanvasElement}
+         * @abstract
+         */
+        abstract getRawTexture(): HTMLImageElement | HTMLCanvasElement;
+        /**
+         * Draws the sprite
+         * @param {CanvasRenderingContext2D} context
+         * @param {number} x
+         * @param {number} y
+         * @param {number} w
+         * @param {number} h
+         */
+        draw(context: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void;
+    }
+    /**
+     * Position of a sprite within an atlas
+     */
+    export class SpriteAtlasLink {
+        /**
+         *
+         * @param {object} param0
+         * @param {number} param0.packedX
+         * @param {number} param0.packedY
+         * @param {number} param0.packOffsetX
+         * @param {number} param0.packOffsetY
+         * @param {number} param0.packedW
+         * @param {number} param0.packedH
+         * @param {number} param0.w
+         * @param {number} param0.h
+         * @param {HTMLImageElement|HTMLCanvasElement} param0.atlas
+         */
+        constructor({
+            w,
+            h,
+            packedX,
+            packedY,
+            packOffsetX,
+            packOffsetY,
+            packedW,
+            packedH,
+            atlas,
+        }: {
+            packedX: number;
+            packedY: number;
+            packOffsetX: number;
+            packOffsetY: number;
+            packedW: number;
+            packedH: number;
+            w: number;
+            h: number;
+            atlas: HTMLImageElement | HTMLCanvasElement;
+        });
+        packedX: number;
+        packedY: number;
+        packedW: number;
+        packedH: number;
+        packOffsetX: number;
+        packOffsetY: number;
+        atlas: HTMLCanvasElement | HTMLImageElement;
+        w: number;
+        h: number;
+    }
+    export class AtlasSprite extends NonAbstract(BaseSprite) {
+        /**
+         *
+         * @param {string} spriteName
+         */
+        constructor(spriteName?: string);
+        /** @type {Object.<string, SpriteAtlasLink>} */
+        linksByResolution: {
+            [x: string]: SpriteAtlasLink;
+        };
+        spriteName: string;
+        frozen: boolean;
+        /**
+         *
+         * @param {DrawParameters} parameters
+         * @param {number} x
+         * @param {number} y
+         * @param {number} size
+         * @param {boolean=} clipping
+         */
+        drawCachedCentered(
+            parameters: DrawParameters,
+            x: number,
+            y: number,
+            size: number,
+            clipping?: boolean | undefined
+        ): void;
+        /**
+         *
+         * @param {CanvasRenderingContext2D} context
+         * @param {number} x
+         * @param {number} y
+         * @param {number} size
+         */
+        drawCentered(context: CanvasRenderingContext2D, x: number, y: number, size: number): void;
+        /**
+         * Draws the sprite
+         * @param {DrawParameters} parameters
+         * @param {number} x
+         * @param {number} y
+         * @param {number} w
+         * @param {number} h
+         * @param {boolean=} clipping Whether to perform culling
+         */
+        drawCached(
+            parameters: DrawParameters,
+            x: number,
+            y: number,
+            w?: number,
+            h?: number,
+            clipping?: boolean | undefined
+        ): void;
+        /**
+         * Draws a subset of the sprite. Does NO culling
+         * @param {DrawParameters} parameters
+         * @param {number} x
+         * @param {number} y
+         * @param {number} w
+         * @param {number} h
+         * @param {Rectangle=} clipRect The rectangle in local space (0 ... 1) to draw of the image
+         */
+        drawCachedWithClipRect(
+            parameters: DrawParameters,
+            x: number,
+            y: number,
+            w?: number,
+            h?: number,
+            clipRect?: Rectangle | undefined
+        ): void;
+        /**
+         * Renders into an html element
+         * @param {HTMLElement} element
+         * @param {number} w
+         * @param {number} h
+         */
+        renderToHTMLElement(element: HTMLElement, w?: number, h?: number): void;
+        /**
+         * Returns the html to render as icon
+         * @param {number} w
+         * @param {number} h
+         */
+        getAsHTML(w: number, h: number): string;
+    }
+    export class RegularSprite extends NonAbstract(BaseSprite) {
+        constructor(sprite: any, w: any, h: any);
+        w: any;
+        h: any;
+        sprite: any;
+        /**
+         * Draws the sprite, do *not* use this for sprites which are rendered! Only for drawing
+         * images into buffers
+         * @param {CanvasRenderingContext2D} context
+         * @param {number} x
+         * @param {number} y
+         * @param {number} w
+         * @param {number} h
+         */
+        drawCentered(context: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void;
+    }
+    import { Rectangle } from "shapez/core/rectangle";
+    import { DrawParameters } from "shapez/core/draw_parameters";
+}
+declare module "shapez/core/cachebust" {
+    /**
+     * Generates a cachebuster string. This only modifies the path in the browser version
+     * @param {string} path
+     */
+    export function cachebust(path: string): string;
+}
+declare module "shapez/core/atlas_definitions" {
+    /**
+     * @typedef {{ w: number, h: number }} Size
+     * @typedef {{ x: number, y: number }} Position
+     * @typedef {{
+     *   frame: Position & Size,
+     *   rotated: boolean,
+     *   spriteSourceSize: Position & Size,
+     *   sourceSize: Size,
+     *   trimmed: boolean
+     * }} SpriteDefinition
+     *
+     * @typedef {{
+     *   app: string,
+     *   version: string,
+     *   image: string,
+     *   format: string,
+     *   size: Size,
+     *   scale: string,
+     *   smartupdate: string
+     * }} AtlasMeta
+     *
+     * @typedef {{
+     *   frames: Object.<string, SpriteDefinition>,
+     *   meta: AtlasMeta
+     * }} SourceData
+     */
+    export class AtlasDefinition {
+        /**
+         * @param {SourceData} sourceData
+         */
+        constructor({ frames, meta }: SourceData);
+        meta: {
+            app: string;
+            version: string;
+            image: string;
+            format: string;
+            size: Size;
+            scale: string;
+            smartupdate: string;
+        };
+        sourceData: {
+            [x: string]: {
+                frame: Position & Size;
+                rotated: boolean;
+                spriteSourceSize: Position & Size;
+                sourceSize: Size;
+                trimmed: boolean;
+            };
+        };
+        sourceFileName: string;
+        getFullSourcePath(): string;
+    }
+    /** @type {AtlasDefinition[]} **/
+    export const atlasFiles: AtlasDefinition[];
+    export type Size = {
+        w: number;
+        h: number;
+    };
+    export type Position = {
+        x: number;
+        y: number;
+    };
+    export type SpriteDefinition = {
+        frame: Position & Size;
+        rotated: boolean;
+        spriteSourceSize: Position & Size;
+        sourceSize: Size;
+        trimmed: boolean;
+    };
+    export type AtlasMeta = {
+        app: string;
+        version: string;
+        image: string;
+        format: string;
+        size: Size;
+        scale: string;
+        smartupdate: string;
+    };
+    export type SourceData = {
+        frames: {
+            [x: string]: SpriteDefinition;
+        };
+        meta: AtlasMeta;
+    };
+}
+declare module "shapez/core/loader" {
+    export const Loader: LoaderImpl;
+    export type Application = import("shapez/application").Application;
+    /**
+     * ;
+     */
+    export type AtlasDefinition = import("shapez/core/atlas_definitions").AtlasDefinition;
+    class LoaderImpl {
+        app: import("shapez/application").Application;
+        /** @type {Map<string, BaseSprite>} */
+        sprites: Map<string, BaseSprite>;
+        rawImages: any[];
+        /**
+         * @param {Application} app
+         */
+        linkAppAfterBoot(app: Application): void;
+        /**
+         * Fetches a given sprite from the cache
+         * @param {string} key
+         * @returns {BaseSprite}
+         */
+        getSpriteInternal(key: string): BaseSprite;
+        /**
+         * Returns an atlas sprite from the cache
+         * @param {string} key
+         * @returns {AtlasSprite}
+         */
+        getSprite(key: string): AtlasSprite;
+        /**
+         * Returns a regular sprite from the cache
+         * @param {string} key
+         * @returns {RegularSprite}
+         */
+        getRegularSprite(key: string): RegularSprite;
+        /**
+         *
+         * @param {string} key
+         * @param {(progress: number) => void} progressHandler
+         * @returns {Promise<HTMLImageElement|null>}
+         */
+        internalPreloadImage(
+            key: string,
+            progressHandler: (progress: number) => void
+        ): Promise<HTMLImageElement | null>;
+        /**
+         * Preloads a sprite
+         * @param {string} key
+         * @param {(progress: number) => void} progressHandler
+         * @returns {Promise<void>}
+         */
+        preloadCSSSprite(key: string, progressHandler: (progress: number) => void): Promise<void>;
+        /**
+         * Preloads an atlas
+         * @param {AtlasDefinition} atlas
+         * @param {(progress: number) => void} progressHandler
+         * @returns {Promise<void>}
+         */
+        preloadAtlas(atlas: AtlasDefinition, progressHandler: (progress: number) => void): Promise<void>;
+        /**
+         *
+         * @param {AtlasDefinition} atlas
+         * @param {HTMLImageElement} loadedImage
+         */
+        internalParseAtlas(
+            {
+                meta: { scale },
+                sourceData,
+            }: AtlasDefinition,
+            loadedImage: HTMLImageElement
+        ): void;
+        /**
+         * Makes the canvas which shows the question mark, shown when a sprite was not found
+         */
+        makeSpriteNotFoundCanvas(): void;
+        spriteNotFoundSprite: AtlasSprite;
+    }
+    import { BaseSprite } from "shapez/core/sprites";
+    import { AtlasSprite } from "shapez/core/sprites";
+    import { RegularSprite } from "shapez/core/sprites";
+    export {};
+}
 declare module "shapez/game/building_codes" {
     /**
      * Registers a new variant
@@ -1800,6 +3320,45 @@ declare module "shapez/game/building_codes" {
     import { MetaBuilding } from "shapez/game/meta_building";
     import { Vector } from "shapez/core/vector";
     import { AtlasSprite } from "shapez/core/sprites";
+}
+declare module "shapez/game/component" {
+    export abstract class Component extends BasicSerializableObject {
+        /**
+         * Returns the components unique id
+         * @returns {string}
+         * @abstract
+         */
+        static getId(): string;
+        /**
+         * Should return the schema used for serialization
+         */
+        static getSchema(): {};
+        /**
+         * Fixes typeof DerivedComponent is not assignable to typeof Component, compiled out
+         * in non-dev builds
+         */
+        constructor(...args: any[]);
+        /**
+         * Copy the current state to another component
+         * @param {Component} otherComponent
+         */
+        copyAdditionalStateTo(otherComponent: Component): void;
+        /**
+         * Clears all items and state
+         */
+        clear(): void;
+        /**
+         * Returns a string representing the components data, only in dev builds
+         * @returns {string}
+         */
+        getDebugString(): string;
+    }
+    /**
+     * TypeScript does not support Abstract Static methods (https://github.com/microsoft/TypeScript/issues/34516)
+     * One workaround is to declare the type of the component and reference that for static methods
+     */
+    export type StaticComponent = typeof Component;
+    import { BasicSerializableObject } from "shapez/savegame/serialization";
 }
 declare module "shapez/game/components/static_map_entity" {
     export class StaticMapEntityComponent extends NonAbstract(Component) {
@@ -1986,6 +3545,73 @@ declare module "shapez/core/dpi_manager" {
         h: number
     ): void;
 }
+declare module "shapez/game/base_item" {
+    /**
+     * Class for items on belts etc. Not an entity for performance reasons
+     */
+    export abstract class BaseItem extends BasicSerializableObject {
+        static getId(): string;
+        _type: any;
+        /** @returns {ItemType} **/
+        getItemType(): any;
+        /**
+         * Returns a string id of the item
+         * @returns {string}
+         * @abstract
+         */
+        abstract getAsCopyableKey(): string;
+        /**
+         * Returns if the item equals the other itme
+         * @param {BaseItem} other
+         * @returns {boolean}
+         */
+        equals(other: BaseItem): boolean;
+        /**
+         * Override for custom comparison
+         * @param {BaseItem} other
+         * @returns {boolean}
+         * @abstract
+         */
+        abstract equalsImpl(other: BaseItem): boolean;
+        /**
+         * Draws the item to a canvas
+         * @param {CanvasRenderingContext2D} context
+         * @param {number} size
+         * @abstract
+         */
+        abstract drawFullSizeOnCanvas(context: CanvasRenderingContext2D, size: number): void;
+        /**
+         * Draws the item at the given position
+         * @param {number} x
+         * @param {number} y
+         * @param {DrawParameters} parameters
+         * @param {number=} diameter
+         */
+        drawItemCenteredClipped(
+            x: number,
+            y: number,
+            parameters: DrawParameters,
+            diameter?: number | undefined
+        ): void;
+        /**
+         * INTERNAL
+         * @param {number} x
+         * @param {number} y
+         * @param {DrawParameters} parameters
+         * @param {number=} diameter
+         * @abstract
+         */
+        abstract drawItemCenteredImpl(
+            x: number,
+            y: number,
+            parameters: DrawParameters,
+            diameter?: number | undefined
+        ): void;
+        getBackgroundColorAsResource(): string;
+    }
+    import { BasicSerializableObject } from "shapez/savegame/serialization";
+    import { DrawParameters } from "shapez/core/draw_parameters";
+}
 declare module "shapez/game/items/boolean_item" {
     /**
      * Returns whether the item is Boolean and TRUE
@@ -2040,11 +3666,7 @@ declare module "shapez/game/colors" {
         [x: string]: string;
     };
     /** @enum {Object.<string, string>} */
-    export const enumColorMixingResults: {
-        [x: string]: {
-            [x: string]: string;
-        };
-    };
+    export const enumColorMixingResults: {};
 }
 declare module "shapez/game/theme" {
     export function applyGameTheme(id: any): void;
@@ -2378,11 +4000,12 @@ declare module "shapez/game/belt_path" {
         /**
          * Finds the entity which accepts our items
          * @param {boolean=} debug_Silent Whether debug output should be silent
-         * @return { (BaseItem, number?) => boolean }
+         * @return { { acceptor?: (BaseItem, number?) => boolean, entity?: Entity } }
          */
-        computeAcceptingEntityAndSlot(
-            debug_Silent?: boolean | undefined
-        ): (BaseItem: any, number?: any) => boolean;
+        computeAcceptingEntityAndSlot(debug_Silent?: boolean | undefined): {
+            acceptor?: (BaseItem: any, number?: any) => boolean;
+            entity?: Entity;
+        };
         /**
          * Computes a method to pass over the item to the entity
          * @param {Entity} entity
@@ -4369,7 +5992,7 @@ declare module "shapez/game/entity_components" {
         /** @type {GoalAcceptorComponent} */
         GoalAcceptor: GoalAcceptorComponent;
     }
-    import { StaticMapEntityComponent } from "shapez/game/components/static_map_entity";
+    import { StaticMapEntityComponent} from "shapez/game/components/static_map_entity";
     import { BeltComponent } from "shapez/game/components/belt";
     import { ItemEjectorComponent } from "shapez/game/components/item_ejector";
     import { ItemAcceptorComponent } from "shapez/game/components/item_acceptor";
@@ -4392,14 +6015,14 @@ declare module "shapez/game/entity_components" {
     import { GoalAcceptorComponent } from "shapez/game/components/goal_acceptor";
 }
 declare module "shapez/game/entity" {
+    import { StaticMapEntityComponent} from "shapez/game/components/static_map_entity";
     export abstract class Entity extends BasicSerializableObject {
+        get static(): StaticMapEntityComponent
         static getId(): string;
         /**
          * @param {GameRoot} root
          */
         constructor(root: GameRoot);
-
-        get static(): StaticMapEntityComponent
         /**
          * Handle to the global game root
          */
@@ -4464,7 +6087,6 @@ declare module "shapez/game/entity" {
          */
         abstract drawImpl(parameters: DrawParameters): void;
     }
-    import { StaticMapEntityComponent } from "shapez/game/components/static_map_entity";
     import { BasicSerializableObject } from "shapez/savegame/serialization";
     import { GameRoot } from "shapez/game/root";
     import { EntityComponentStorage } from "shapez/game/entity_components";
@@ -4678,1416 +6300,6 @@ declare module "shapez/game/meta_building" {
     import { Entity } from "shapez/game/entity";
     import { GameRoot } from "shapez/game/root";
     import { AtlasSprite } from "shapez/core/sprites";
-}
-declare module "shapez/game/buildings/item_producer" {
-    export class MetaItemProducerBuilding extends NonAbstract(MetaBuilding) {
-        static getAllVariantCombinations(): {
-            internalId: number;
-            variant: string;
-        }[];
-    }
-    import { MetaBuilding } from "shapez/game/meta_building";
-}
-declare module "shapez/core/globals" {
-    /**
-     * @param {Application} app
-     */
-    export function setGlobalApp(app: Application): void;
-    /**
-     * Used for the bug reporter, and the click detector which both have no handles to this.
-     * It would be nicer to have no globals, but this is the only one. I promise!
-     * @type {Application} */
-    export let GLOBAL_APP: Application;
-    export namespace BUILD_OPTIONS {
-        export const HAVE_ASSERT: any;
-        export const APP_ENVIRONMENT: any;
-        export const TRACKING_ENDPOINT: any;
-        export const CHINA_VERSION: any;
-        export const WEGAME_VERSION: any;
-        export const IS_DEV: any;
-        export const IS_RELEASE: any;
-        export const IS_MOBILE_APP: any;
-        export const IS_BROWSER: any;
-        export const IS_STANDALONE: any;
-        export const BUILD_TIME: any;
-        export const BUILD_COMMIT_HASH: any;
-        export const BUILD_VERSION: any;
-        export const ALL_UI_IMAGES: any;
-    }
-    import { Application } from "shapez/application";
-}
-declare module "shapez/core/click_detector" {
-    export const MAX_MOVE_DISTANCE_PX: 20 | 80;
-    export namespace clickDetectorGlobals {
-        export const lastTouchTime: number;
-    }
-    /**
-     * Click detector creation payload typehints
-     * @typedef {{
-     *  consumeEvents?: boolean,
-     *  preventDefault?: boolean,
-     *  applyCssClass?: string,
-     *  captureTouchmove?: boolean,
-     *  targetOnly?: boolean,
-     *  maxDistance?: number,
-     *  clickSound?: string,
-     *  preventClick?: boolean,
-     * }} ClickDetectorConstructorArgs
-     */
-    export class ClickDetector {
-        /**
-         * Extracts the mous position from an event
-         * @param {TouchEvent|MouseEvent} event
-         * @returns {Vector} The client space position
-         */
-        static extractPointerPosition(event: TouchEvent | MouseEvent): Vector;
-        /**
-         *
-         * @param {Element} element
-         * @param {object} param1
-         * @param {boolean=} param1.consumeEvents Whether to call stopPropagation
-         *                                       (Useful for nested elements where the parent has a click handler as wel)
-         * @param {boolean=} param1.preventDefault  Whether to call preventDefault (Usually makes the handler faster)
-         * @param {string=} param1.applyCssClass The css class to add while the element is pressed
-         * @param {boolean=} param1.captureTouchmove Whether to capture touchmove events as well
-         * @param {boolean=} param1.targetOnly Whether to also accept clicks on child elements (e.target !== element)
-         * @param {number=} param1.maxDistance The maximum distance in pixels to accept clicks
-         * @param {string=} param1.clickSound Sound key to play on touchdown
-         * @param {boolean=} param1.preventClick Whether to prevent click events
-         */
-        constructor(
-            element: Element,
-            {
-                consumeEvents,
-                preventDefault,
-                applyCssClass,
-                captureTouchmove,
-                targetOnly,
-                maxDistance,
-                clickSound,
-                preventClick,
-            }: {
-                consumeEvents?: boolean | undefined;
-                preventDefault?: boolean | undefined;
-                applyCssClass?: string | undefined;
-                captureTouchmove?: boolean | undefined;
-                targetOnly?: boolean | undefined;
-                maxDistance?: number | undefined;
-                clickSound?: string | undefined;
-                preventClick?: boolean | undefined;
-            }
-        );
-        clickDownPosition: Vector;
-        consumeEvents: boolean;
-        preventDefault: boolean;
-        applyCssClass: string;
-        captureTouchmove: boolean;
-        targetOnly: boolean;
-        clickSound: string;
-        maxDistance: number;
-        preventClick: boolean;
-        click: Signal;
-        rightClick: Signal;
-        touchstart: Signal;
-        touchmove: Signal;
-        touchend: Signal;
-        touchcancel: Signal;
-        touchstartSimple: Signal;
-        touchmoveSimple: Signal;
-        touchendSimple: Signal;
-        clickStartTime: number;
-        cancelled: boolean;
-        /**
-         * Cleans up all event listeners of this detector
-         */
-        cleanup(): void;
-        element: HTMLElement;
-        /**
-         *
-         * @param {Event} event
-         */
-        internalPreventClick(event: Event): void;
-        /**
-         * Internal method to get the options to pass to an event listener
-         */
-        internalGetEventListenerOptions(): {
-            capture: boolean;
-            passive: boolean;
-        };
-        /**
-         * Binds the click detector to an element
-         * @param {HTMLElement} element
-         */
-        internalBindTo(element: HTMLElement): void;
-        handlerTouchStart: any;
-        handlerTouchEnd: any;
-        handlerTouchMove: any;
-        handlerTouchCancel: any;
-        handlerPreventClick: any;
-        /**
-         * Returns if the bound element is currently in the DOM.
-         */
-        internalIsDomElementAttached(): boolean;
-        /**
-         * Checks if the given event is relevant for this detector
-         * @param {TouchEvent|MouseEvent} event
-         */
-        internalEventPreHandler(event: TouchEvent | MouseEvent, expectedRemainingTouches?: number): boolean;
-        /**
-         * Cacnels all ongoing events on this detector
-         */
-        cancelOngoingEvents(): void;
-        /**
-         * Internal pointer down handler
-         * @param {TouchEvent|MouseEvent} event
-         */
-        internalOnPointerDown(event: TouchEvent | MouseEvent): boolean;
-        /**
-         * Internal pointer move handler
-         * @param {TouchEvent|MouseEvent} event
-         */
-        internalOnPointerMove(event: TouchEvent | MouseEvent): boolean;
-        /**
-         * Internal pointer end handler
-         * @param {TouchEvent|MouseEvent} event
-         */
-        internalOnPointerEnd(event: TouchEvent | MouseEvent): boolean;
-        /**
-         * Internal touch cancel handler
-         * @param {TouchEvent|MouseEvent} event
-         */
-        internalOnTouchCancel(event: TouchEvent | MouseEvent): boolean;
-    }
-    /**
-     * Click detector creation payload typehints
-     */
-    export type ClickDetectorConstructorArgs = {
-        consumeEvents?: boolean;
-        preventDefault?: boolean;
-        applyCssClass?: string;
-        captureTouchmove?: boolean;
-        targetOnly?: boolean;
-        maxDistance?: number;
-        clickSound?: string;
-        preventClick?: boolean;
-    };
-    import { Vector } from "shapez/core/vector";
-    import { Signal } from "shapez/core/signal";
-}
-declare module "shapez/core/input_receiver" {
-    export class InputReceiver {
-        constructor(context?: string);
-        context: string;
-        backButton: Signal;
-        keydown: Signal;
-        keyup: Signal;
-        pageBlur: Signal;
-        destroyed: Signal;
-        paste: Signal;
-        cleanup(): void;
-    }
-    import { Signal } from "shapez/core/signal";
-}
-declare module "shapez/game/key_action_mapper" {
-    export function keyToKeyCode(str: any): any;
-    /**
-     * Returns a keycode -> string
-     * @param {number} code
-     * @returns {string}
-     */
-    export function getStringForKeyCode(code: number): string;
-    export namespace KEYCODES {
-        export const Tab: number;
-        export const Enter: number;
-        export const Shift: number;
-        export const Ctrl: number;
-        export const Alt: number;
-        export const Escape: number;
-        export const Space: number;
-        export const ArrowLeft: number;
-        export const ArrowUp: number;
-        export const ArrowRight: number;
-        export const ArrowDown: number;
-        export const Delete: number;
-        export const F1: number;
-        export const F2: number;
-        export const F3: number;
-        export const F4: number;
-        export const F5: number;
-        export const F6: number;
-        export const F7: number;
-        export const F8: number;
-        export const F9: number;
-        export const F10: number;
-        export const F11: number;
-        export const F12: number;
-        export const Plus: number;
-        export const Minus: number;
-    }
-    export namespace KEYMAPPINGS {
-        export const mods: {};
-        export namespace general {
-            export namespace confirm {
-                const keyCode: typeof KEYCODES.Enter;
-                export { keyCode };
-            }
-            export namespace back {
-                const keyCode_1: typeof KEYCODES.Escape;
-                export { keyCode_1 as keyCode };
-                export const builtin: boolean;
-            }
-        }
-        export namespace ingame {
-            export namespace menuOpenShop {
-                const keyCode_2: any;
-                export { keyCode_2 as keyCode };
-            }
-            export namespace menuOpenStats {
-                const keyCode_3: any;
-                export { keyCode_3 as keyCode };
-            }
-            export namespace menuClose {
-                const keyCode_4: any;
-                export { keyCode_4 as keyCode };
-            }
-            export namespace toggleHud {
-                const keyCode_5: typeof KEYCODES.F2;
-                export { keyCode_5 as keyCode };
-            }
-            export namespace exportScreenshot {
-                const keyCode_6: typeof KEYCODES.F3;
-                export { keyCode_6 as keyCode };
-            }
-            export namespace toggleFPSInfo {
-                const keyCode_7: typeof KEYCODES.F4;
-                export { keyCode_7 as keyCode };
-            }
-            export namespace switchLayers {
-                const keyCode_8: any;
-                export { keyCode_8 as keyCode };
-            }
-            export namespace showShapeTooltip {
-                const keyCode_9: typeof KEYCODES.Alt;
-                export { keyCode_9 as keyCode };
-            }
-        }
-        export namespace navigation {
-            export namespace mapMoveUp {
-                const keyCode_10: any;
-                export { keyCode_10 as keyCode };
-            }
-            export namespace mapMoveRight {
-                const keyCode_11: any;
-                export { keyCode_11 as keyCode };
-            }
-            export namespace mapMoveDown {
-                const keyCode_12: any;
-                export { keyCode_12 as keyCode };
-            }
-            export namespace mapMoveLeft {
-                const keyCode_13: any;
-                export { keyCode_13 as keyCode };
-            }
-            export namespace mapMoveFaster {
-                const keyCode_14: typeof KEYCODES.Shift;
-                export { keyCode_14 as keyCode };
-            }
-            export namespace centerMap {
-                const keyCode_15: typeof KEYCODES.Space;
-                export { keyCode_15 as keyCode };
-            }
-            export namespace mapZoomIn {
-                const keyCode_16: typeof KEYCODES.Plus;
-                export { keyCode_16 as keyCode };
-                export const repeated: boolean;
-            }
-            export namespace mapZoomOut {
-                const keyCode_17: typeof KEYCODES.Minus;
-                export { keyCode_17 as keyCode };
-                const repeated_1: boolean;
-                export { repeated_1 as repeated };
-            }
-            export namespace createMarker {
-                const keyCode_18: any;
-                export { keyCode_18 as keyCode };
-            }
-        }
-        export namespace buildings {
-            export namespace constant_producer {
-                const keyCode_19: any;
-                export { keyCode_19 as keyCode };
-            }
-            export namespace goal_acceptor {
-                const keyCode_20: any;
-                export { keyCode_20 as keyCode };
-            }
-            export namespace block {
-                const keyCode_21: any;
-                export { keyCode_21 as keyCode };
-            }
-            export namespace belt {
-                const keyCode_22: any;
-                export { keyCode_22 as keyCode };
-            }
-            export namespace balancer {
-                const keyCode_23: any;
-                export { keyCode_23 as keyCode };
-            }
-            export namespace underground_belt {
-                const keyCode_24: any;
-                export { keyCode_24 as keyCode };
-            }
-            export namespace miner {
-                const keyCode_25: any;
-                export { keyCode_25 as keyCode };
-            }
-            export namespace cutter {
-                const keyCode_26: any;
-                export { keyCode_26 as keyCode };
-            }
-            export namespace rotater {
-                const keyCode_27: any;
-                export { keyCode_27 as keyCode };
-            }
-            export namespace stacker {
-                const keyCode_28: any;
-                export { keyCode_28 as keyCode };
-            }
-            export namespace mixer {
-                const keyCode_29: any;
-                export { keyCode_29 as keyCode };
-            }
-            export namespace painter {
-                const keyCode_30: any;
-                export { keyCode_30 as keyCode };
-            }
-            export namespace trash {
-                const keyCode_31: any;
-                export { keyCode_31 as keyCode };
-            }
-            export namespace item_producer {
-                const keyCode_32: any;
-                export { keyCode_32 as keyCode };
-            }
-            export namespace storage {
-                const keyCode_33: any;
-                export { keyCode_33 as keyCode };
-            }
-            export namespace reader {
-                const keyCode_34: any;
-                export { keyCode_34 as keyCode };
-            }
-            export namespace lever {
-                const keyCode_35: any;
-                export { keyCode_35 as keyCode };
-            }
-            export namespace filter {
-                const keyCode_36: any;
-                export { keyCode_36 as keyCode };
-            }
-            export namespace display {
-                const keyCode_37: any;
-                export { keyCode_37 as keyCode };
-            }
-            export namespace wire {
-                const keyCode_38: any;
-                export { keyCode_38 as keyCode };
-            }
-            export namespace wire_tunnel {
-                const keyCode_39: any;
-                export { keyCode_39 as keyCode };
-            }
-            export namespace constant_signal {
-                const keyCode_40: any;
-                export { keyCode_40 as keyCode };
-            }
-            export namespace logic_gate {
-                const keyCode_41: any;
-                export { keyCode_41 as keyCode };
-            }
-            export namespace virtual_processor {
-                const keyCode_42: any;
-                export { keyCode_42 as keyCode };
-            }
-            export namespace analyzer {
-                const keyCode_43: any;
-                export { keyCode_43 as keyCode };
-            }
-            export namespace comparator {
-                const keyCode_44: any;
-                export { keyCode_44 as keyCode };
-            }
-            export namespace transistor {
-                const keyCode_45: any;
-                export { keyCode_45 as keyCode };
-            }
-        }
-        export namespace placement {
-            export namespace pipette {
-                const keyCode_46: any;
-                export { keyCode_46 as keyCode };
-            }
-            export namespace rotateWhilePlacing {
-                const keyCode_47: any;
-                export { keyCode_47 as keyCode };
-            }
-            export namespace rotateInverseModifier {
-                const keyCode_48: typeof KEYCODES.Shift;
-                export { keyCode_48 as keyCode };
-            }
-            export namespace rotateToUp {
-                const keyCode_49: typeof KEYCODES.ArrowUp;
-                export { keyCode_49 as keyCode };
-            }
-            export namespace rotateToDown {
-                const keyCode_50: typeof KEYCODES.ArrowDown;
-                export { keyCode_50 as keyCode };
-            }
-            export namespace rotateToRight {
-                const keyCode_51: typeof KEYCODES.ArrowRight;
-                export { keyCode_51 as keyCode };
-            }
-            export namespace rotateToLeft {
-                const keyCode_52: typeof KEYCODES.ArrowLeft;
-                export { keyCode_52 as keyCode };
-            }
-            export namespace cycleBuildingVariants {
-                const keyCode_53: any;
-                export { keyCode_53 as keyCode };
-            }
-            export namespace cycleBuildings {
-                const keyCode_54: typeof KEYCODES.Tab;
-                export { keyCode_54 as keyCode };
-            }
-            export namespace switchDirectionLockSide {
-                const keyCode_55: any;
-                export { keyCode_55 as keyCode };
-            }
-            export namespace copyWireValue {
-                const keyCode_56: any;
-                export { keyCode_56 as keyCode };
-            }
-        }
-        export namespace massSelect {
-            export namespace massSelectStart {
-                const keyCode_57: typeof KEYCODES.Ctrl;
-                export { keyCode_57 as keyCode };
-            }
-            export namespace massSelectSelectMultiple {
-                const keyCode_58: typeof KEYCODES.Shift;
-                export { keyCode_58 as keyCode };
-            }
-            export namespace massSelectCopy {
-                const keyCode_59: any;
-                export { keyCode_59 as keyCode };
-            }
-            export namespace massSelectCut {
-                const keyCode_60: any;
-                export { keyCode_60 as keyCode };
-            }
-            export namespace massSelectClear {
-                const keyCode_61: any;
-                export { keyCode_61 as keyCode };
-            }
-            export namespace confirmMassDelete {
-                const keyCode_62: typeof KEYCODES.Delete;
-                export { keyCode_62 as keyCode };
-            }
-            export namespace pasteLastBlueprint {
-                const keyCode_63: any;
-                export { keyCode_63 as keyCode };
-            }
-        }
-        export namespace placementModifiers {
-            export namespace lockBeltDirection {
-                const keyCode_64: typeof KEYCODES.Shift;
-                export { keyCode_64 as keyCode };
-            }
-            export namespace placementDisableAutoOrientation {
-                const keyCode_65: typeof KEYCODES.Ctrl;
-                export { keyCode_65 as keyCode };
-            }
-            export namespace placeMultiple {
-                const keyCode_66: typeof KEYCODES.Shift;
-                export { keyCode_66 as keyCode };
-            }
-            export namespace placeInverse {
-                const keyCode_67: typeof KEYCODES.Alt;
-                export { keyCode_67 as keyCode };
-            }
-        }
-    }
-    export const KEYCODE_LMB: 1;
-    export const KEYCODE_MMB: 2;
-    export const KEYCODE_RMB: 3;
-    export class Keybinding {
-        /**
-         *
-         * @param {KeyActionMapper} keyMapper
-         * @param {Application} app
-         * @param {object} param0
-         * @param {number} param0.keyCode
-         * @param {boolean=} param0.builtin
-         * @param {boolean=} param0.repeated
-         * @param {{ shift?: boolean; alt?: boolean; ctrl?: boolean; }=} param0.modifiers
-         */
-        constructor(
-            keyMapper: KeyActionMapper,
-            app: Application,
-            {
-                keyCode,
-                builtin,
-                repeated,
-                modifiers,
-            }: {
-                keyCode: number;
-                builtin?: boolean | undefined;
-                repeated?: boolean | undefined;
-                modifiers?:
-                    | {
-                          shift?: boolean;
-                          alt?: boolean;
-                          ctrl?: boolean;
-                      }
-                    | undefined;
-            }
-        );
-        keyMapper: KeyActionMapper;
-        app: Application;
-        keyCode: number;
-        builtin: boolean;
-        repeated: boolean;
-        modifiers: {
-            shift?: boolean;
-            alt?: boolean;
-            ctrl?: boolean;
-        };
-        signal: Signal;
-        toggled: Signal;
-        /**
-         * Returns whether this binding is currently pressed
-         * @returns {boolean}
-         */
-        get pressed(): boolean;
-        /**
-         * Adds an event listener
-         * @param {function() : void} receiver
-         * @param {object=} scope
-         */
-        add(receiver: () => void, scope?: object | undefined): void;
-        /**
-         * Adds an event listener
-         * @param {function() : void} receiver
-         * @param {object=} scope
-         */
-        addToTop(receiver: () => void, scope?: object | undefined): void;
-        /**
-         * @param {Element} elem
-         * @returns {HTMLElement} the created element, or null if the keybindings are not shown
-         *  */
-        appendLabelToElement(elem: Element): HTMLElement;
-        /**
-         * Returns the key code as a nice string
-         */
-        getKeyCodeString(): string;
-        /**
-         * Remvoes all signal receivers
-         */
-        clearSignalReceivers(): void;
-    }
-    export class KeyActionMapper {
-        /**
-         *
-         * @param {GameRoot} root
-         * @param {InputReceiver} inputReciever
-         */
-        constructor(root: GameRoot, inputReciever: InputReceiver);
-        root: GameRoot;
-        inputReceiver: InputReceiver;
-        /** @type {Object.<string, Keybinding>} */
-        keybindings: {
-            [x: string]: Keybinding;
-        };
-        /**
-         * Returns all keybindings starting with the given id
-         * @param {string} pattern
-         * @returns {Array<Keybinding>}
-         */
-        getKeybindingsStartingWith(pattern: string): Array<Keybinding>;
-        /**
-         * Forwards the given events to the other mapper (used in tooltips)
-         * @param {KeyActionMapper} receiver
-         * @param {Array<string>} bindings
-         */
-        forward(receiver: KeyActionMapper, bindings: Array<string>): void;
-        cleanup(): void;
-        onPageBlur(): void;
-        /**
-         * Internal keydown handler
-         * @param {object} param0
-         * @param {number} param0.keyCode
-         * @param {boolean} param0.shift
-         * @param {boolean} param0.alt
-         * @param {boolean} param0.ctrl
-         * @param {boolean=} param0.initial
-         */
-        handleKeydown({
-            keyCode,
-            shift,
-            alt,
-            ctrl,
-            initial,
-        }: {
-            keyCode: number;
-            shift: boolean;
-            alt: boolean;
-            ctrl: boolean;
-            initial?: boolean | undefined;
-        }): string;
-        /**
-         * Internal keyup handler
-         * @param {object} param0
-         * @param {number} param0.keyCode
-         * @param {boolean} param0.shift
-         * @param {boolean} param0.alt
-         */
-        handleKeyup({ keyCode, shift, alt }: { keyCode: number; shift: boolean; alt: boolean }): void;
-        /**
-         * Returns a given keybinding
-         * @param {{ keyCode: number }} binding
-         * @returns {Keybinding}
-         */
-        getBinding(binding: { keyCode: number }): Keybinding;
-        /**
-         * Returns a given keybinding
-         * @param {string} id
-         * @returns {Keybinding}
-         */
-        getBindingById(id: string): Keybinding;
-    }
-    import { Application } from "shapez/application";
-    import { Signal } from "shapez/core/signal";
-    import { GameRoot } from "shapez/game/root";
-    import { InputReceiver } from "shapez/core/input_receiver";
-}
-declare module "shapez/game/hud/base_hud_part" {
-    export abstract class BaseHUDPart {
-        /**
-         * @param {GameRoot} root
-         */
-        constructor(root: GameRoot);
-        root: GameRoot;
-        /** @type {Array<ClickDetector>} */
-        clickDetectors: Array<ClickDetector>;
-        /**
-         * Should create all require elements
-         * @param {HTMLElement} parent
-         */
-        createElements(parent: HTMLElement): void;
-        /**
-         * Should initialize the element, called *after* the elements have been created
-         * @abstract
-         */
-        abstract initialize(): void;
-        /**
-         * Should update any required logic
-         */
-        update(): void;
-        /**
-         * Should draw the hud
-         * @param {DrawParameters} parameters
-         */
-        draw(parameters: DrawParameters): void;
-        /**
-         * Should draw any overlays (screen space)
-         * @param {DrawParameters} parameters
-         */
-        drawOverlays(parameters: DrawParameters): void;
-        /**
-         * Should return true if the widget has a modal dialog opened and thus
-         * the game does not need to update / redraw
-         * @returns {boolean}
-         */
-        shouldPauseRendering(): boolean;
-        /**
-         * Should return false if the game should be paused
-         * @returns {boolean}
-         */
-        shouldPauseGame(): boolean;
-        /**
-         * Should return true if this overlay is open and currently blocking any user interaction
-         */
-        isBlockingOverlay(): boolean;
-        /**
-         * Cleans up the hud element, if overridden make sure to call super.cleanup
-         */
-        cleanup(): void;
-        /**
-         * Cleans up all click detectors
-         */
-        cleanupClickDetectors(): void;
-        /**
-         * Should close the element, in case its supported
-         */
-        close(): void;
-        /**
-         * Helper method to construct a new click detector
-         * @param {Element} element The element to listen on
-         * @param {function} handler The handler to call on this object
-         * @param {import("shapez/core/click_detector").ClickDetectorConstructorArgs=} args Click detector arguments
-         *
-         */
-        trackClicks(
-            element: Element,
-            handler: Function,
-            args?: import("shapez/core/click_detector").ClickDetectorConstructorArgs | undefined
-        ): void;
-        /**
-         * Registers a new click detector
-         * @param {ClickDetector} detector
-         */
-        registerClickDetector(detector: ClickDetector): void;
-        /**
-         * Closes this element when its background is clicked
-         * @param {HTMLElement} element
-         * @param {function} closeMethod
-         */
-        closeOnBackgroundClick(element: HTMLElement, closeMethod?: Function): void;
-        /**
-         * Forwards the game speed keybindings so you can toggle pause / Fastforward
-         * in the building tooltip and such
-         * @param {KeyActionMapper} sourceMapper
-         */
-        forwardGameSpeedKeybindings(sourceMapper: KeyActionMapper): void;
-        /**
-         * Forwards the map movement keybindings so you can move the map with the
-         * arrow keys
-         * @param {KeyActionMapper} sourceMapper
-         */
-        forwardMapMovementKeybindings(sourceMapper: KeyActionMapper): void;
-    }
-    import { GameRoot } from "shapez/game/root";
-    import { ClickDetector } from "shapez/core/click_detector";
-    import { DrawParameters } from "shapez/core/draw_parameters";
-    import { KeyActionMapper } from "shapez/game/key_action_mapper";
-}
-declare module "shapez/game/game_mode" {
-    export type enumGameModeIds = string;
-    export namespace enumGameModeIds {
-        export const puzzleEdit: string;
-        export const puzzlePlay: string;
-        export const regular: string;
-    }
-    export type enumGameModeTypes = string;
-    /** @enum {string} */
-    export const enumGameModeTypes: {
-        default: string;
-        puzzle: string;
-    };
-    export abstract class GameMode extends BasicSerializableObject {
-        /** @returns {string} */
-        static getId(): string;
-        /** @returns {string} */
-        static getType(): string;
-        /**
-         * @param {GameRoot} root
-         * @param {string} [id=Regular]
-         * @param {object|undefined} payload
-         */
-        static create(root: GameRoot, id?: string, payload?: object | undefined): any;
-        /**
-         * @param {GameRoot} root
-         */
-        constructor(root: GameRoot);
-        root: GameRoot;
-        /**
-         * @type {Record<string, typeof BaseHUDPart>}
-         */
-        additionalHudParts: Record<string, typeof BaseHUDPart>;
-        /** @type {typeof MetaBuilding[]} */
-        hiddenBuildings: typeof MetaBuilding[];
-        /** @returns {string} */
-        getId(): string;
-        /** @returns {string} */
-        getType(): string;
-        /**
-         * @param {typeof MetaBuilding} building - Class name of building
-         * @returns {boolean}
-         */
-        isBuildingExcluded(building: typeof MetaBuilding): boolean;
-        /** @returns {undefined|Rectangle[]} */
-        getBuildableZones(): undefined | Rectangle[];
-        /** @returns {Rectangle|undefined} */
-        getCameraBounds(): Rectangle | undefined;
-        /** @returns {boolean} */
-        hasHub(): boolean;
-        /** @returns {boolean} */
-        hasResources(): boolean;
-        /** @returns {boolean} */
-        hasAchievements(): boolean;
-        /** @returns {number} */
-        getMinimumZoom(): number;
-        /** @returns {number} */
-        getMaximumZoom(): number;
-        /** @returns {Object<string, Array>} */
-        getUpgrades(): {
-            [x: string]: Array<any>;
-        };
-        throughputDoesNotMatter(): boolean;
-        /**
-         * @param {number} w
-         * @param {number} h
-         * @abstract
-         */
-        abstract adjustZone(w?: number, h?: number): void;
-        /** @returns {array} */
-        getLevelDefinitions(): any[];
-        /** @returns {boolean} */
-        getIsFreeplayAvailable(): boolean;
-        /** @returns {boolean} */
-        getIsSaveable(): boolean;
-        /** @returns {boolean} */
-        getHasFreeCopyPaste(): boolean;
-        /** @returns {boolean} */
-        getSupportsWires(): boolean;
-        /** @returns {boolean} */
-        getIsEditor(): boolean;
-        /** @returns {boolean} */
-        getIsDeterministic(): boolean;
-        /** @returns {number | undefined} */
-        getFixedTickrate(): number | undefined;
-        /** @returns {string} */
-        getBlueprintShapeKey(): string;
-    }
-    import { BasicSerializableObject } from "shapez/savegame/serialization";
-    import { GameRoot } from "shapez/game/root";
-    import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
-    import { MetaBuilding } from "shapez/game/meta_building";
-    import { Rectangle } from "shapez/core/rectangle";
-}
-declare module "shapez/core/global_registries" {
-    /**
-     * @param {Object.<string, Array<Class<MetaBuilding>>>} buildings
-     */
-    export function initBuildingsByCategory(buildings: { [x: string]: Array<any> }): void;
-    /**
-     * @typedef {import("shapez/game/time/base_game_speed").BaseGameSpeed} BaseGameSpeed
-     * @typedef {import("shapez/game/component").Component} Component
-     * @typedef {import("shapez/game/base_item").BaseItem} BaseItem
-     * @typedef {import("shapez/game/game_mode").GameMode} GameMode
-     * @typedef {import("shapez/game/meta_building").MetaBuilding} MetaBuilding
-    
-    
-    // These factories are here to remove circular dependencies
-    
-    /** @type {SingletonFactoryTemplate<MetaBuilding>} */
-    export let gMetaBuildingRegistry: any;
-    /** @type {Object.<string, Array<Class<MetaBuilding>>>} */
-    export let gBuildingsByCategory: {
-        [x: string]: Array<any>;
-    };
-    /** @type {FactoryTemplate<Component>} */
-    export let gComponentRegistry: any;
-    /** @type {FactoryTemplate<GameMode>} */
-    export let gGameModeRegistry: any;
-    /** @type {FactoryTemplate<BaseGameSpeed>} */
-    export let gGameSpeedRegistry: any;
-    /** @type {FactoryTemplate<BaseItem>} */
-    export let gItemRegistry: any;
-    export type BaseGameSpeed = import("shapez/game/time/base_game_speed").BaseGameSpeed;
-    export type Component = import("shapez/game/component").Component;
-    export type BaseItem = import("shapez/game/base_item").BaseItem;
-    export type GameMode = import("shapez/game/game_mode").GameMode;
-    /**
-     * // These factories are here to remove circular dependencies
-     * /**
-     */
-    export type MetaBuilding = import("shapez/game/meta_building").MetaBuilding;
-}
-declare module "shapez/core/error_handler" {
-    export let APPLICATION_ERROR_OCCURED: boolean;
-}
-declare module "shapez/core/state_manager" {
-    /**
-     * This is the main state machine which drives the game states.
-     */
-    export class StateManager {
-        /**
-         * @param {Application} app
-         */
-        constructor(app: Application);
-        app: Application;
-        /** @type {GameState} */
-        currentState: GameState;
-        /** @type {Object.<string, new() => GameState>} */
-        stateClasses: {
-            [x: string]: new () => GameState;
-        };
-        /**
-         * Registers a new state class, should be a GameState derived class
-         * @param {object} stateClass
-         */
-        register(stateClass: object): void;
-        /**
-         * Constructs a new state or returns the instance from the cache
-         * @param {string} key
-         */
-        constructState(key: string): GameState;
-        /**
-         * Moves to a given state
-         * @param {string} key State Key
-         */
-        moveToState(key: string, payload?: {}): boolean;
-        /**
-         * Returns the current state
-         * @returns {GameState}
-         */
-        getCurrentState(): GameState;
-    }
-    import { Application } from "shapez/application";
-    import { GameState } from "shapez/core/game_state";
-}
-declare module "shapez/core/request_channel" {
-    export const PROMISE_ABORTED: "promise-aborted";
-    export class RequestChannel {
-        /** @type {Array<Promise>} */
-        pendingPromises: Array<Promise<any>>;
-        /**
-         *
-         * @param {Promise<any>} promise
-         * @returns {Promise<any>}
-         */
-        watch(promise: Promise<any>): Promise<any>;
-        cancelAll(): void;
-    }
-}
-declare module "shapez/core/game_state" {
-    /**
-     * Basic state of the game state machine. This is the base of the whole game
-     */
-    export abstract class GameState {
-        /**
-         * Constructs a new state with the given id
-         * @param {string} key The id of the state. We use ids to refer to states because otherwise we get
-         *                     circular references
-         */
-        constructor(key: string);
-        key: string;
-        /** @type {StateManager} */
-        stateManager: StateManager;
-        /** @type {Application} */
-        app: Application;
-        fadingOut: boolean;
-        /** @type {Array<ClickDetector>} */
-        clickDetectors: Array<ClickDetector>;
-        inputReciever: InputReceiver;
-        asyncChannel: RequestChannel;
-        /**
-         * Returns the states key
-         * @returns {string}
-         */
-        getKey(): string;
-        /**
-         * Returns the html element of the state
-         * @returns {HTMLElement}
-         */
-        getDivElement(): HTMLElement;
-        /**
-         * Transfers to a new state
-         * @param {string} stateKey The id of the new state
-         */
-        moveToState(stateKey: string, payload?: {}, skipFadeOut?: boolean): void;
-        /**
-         * Tracks clicks on a given element and calls the given callback *on this state*.
-         * If you want to call another function wrap it inside a lambda.
-         * @param {Element} element The element to track clicks on
-         * @param {function():void} handler The handler to call
-         * @param {import("shapez/core/click_detector").ClickDetectorConstructorArgs=} args Click detector arguments
-         */
-        trackClicks(
-            element: Element,
-            handler: () => void,
-            args?: import("shapez/core/click_detector").ClickDetectorConstructorArgs | undefined
-        ): void;
-        /**
-         * Cancels all promises on the api as well as our async channel
-         */
-        cancelAllAsyncOperations(): void;
-        /**
-         * Callback when entering the state, to be overriddemn
-         * @param {any} payload Arbitrary data passed from the state which we are transferring from
-         */
-        onEnter(payload: any): void;
-        /**
-         * Callback when leaving the state
-         */
-        onLeave(): void;
-        /**
-         * Callback before leaving the game state or when the page is unloaded
-         */
-        onBeforeExit(): void;
-        /**
-         * Callback when the app got paused (on android, this means in background)
-         */
-        onAppPause(): void;
-        /**
-         * Callback when the app got resumed (on android, this means in foreground again)
-         */
-        onAppResume(): void;
-        /**
-         * Render callback
-         * @param {number} dt Delta time in ms since last render
-         */
-        onRender(dt: number): void;
-        /**
-         * Background tick callback, called while the game is inactiev
-         * @param {number} dt Delta time in ms since last tick
-         */
-        onBackgroundTick(dt: number): void;
-        /**
-         * Called when the screen resized
-         * @param {number} w window/screen width
-         * @param {number} h window/screen height
-         */
-        onResized(w: number, h: number): void;
-        /**
-         * Internal backbutton handler, called when the hardware back button is pressed or
-         * the escape key is pressed
-         */
-        onBackButton(): void;
-        /**
-         * Should return how many mulliseconds to fade in / out the state. Not recommended to override!
-         * @returns {number} Time in milliseconds to fade out
-         */
-        getInOutFadeTime(): number;
-        /**
-         * Should return whether to fade in the game state. This will then apply the right css classes
-         * for the fadein.
-         * @returns {boolean}
-         */
-        getHasFadeIn(): boolean;
-        /**
-         * Should return whether to fade out the game state. This will then apply the right css classes
-         * for the fadeout and wait the delay before moving states
-         * @returns {boolean}
-         */
-        getHasFadeOut(): boolean;
-        /**
-         * Returns if this state should get paused if it does not have focus
-         * @returns {boolean} true to pause the updating of the game
-         */
-        getPauseOnFocusLost(): boolean;
-        /**
-         * Should return the html code of the state.
-         * @returns {string}
-         * @abstract
-         */
-        abstract getInnerHTML(): string;
-        /**
-         * Returns if the state has an unload confirmation, this is the
-         * "Are you sure you want to leave the page" message.
-         */
-        getHasUnloadConfirmation(): boolean;
-        /**
-         * Should return the theme music for this state
-         * @returns {string|null}
-         */
-        getThemeMusic(): string | null;
-        /**
-         * Internal callback from the manager. Do not override!
-         * @param {StateManager} stateManager
-         */
-        internalRegisterCallback(stateManager: StateManager, app: any): void;
-        /**
-         * Internal callback when entering the state. Do not override!
-         * @param {any} payload Arbitrary data passed from the state which we are transferring from
-         * @param {boolean} callCallback Whether to call the onEnter callback
-         */
-        internalEnterCallback(payload: any, callCallback?: boolean): void;
-        htmlElement: HTMLElement;
-        /**
-         * Internal callback when the state is left. Do not override!
-         */
-        internalLeaveCallback(): void;
-        /**
-         * Internal callback *before* the state is left. Also is called on page unload
-         */
-        internalOnBeforeExitCallback(): void;
-        /**
-         * Internal app pause callback
-         */
-        internalOnAppPauseCallback(): void;
-        /**
-         * Internal app resume callback
-         */
-        internalOnAppResumeCallback(): void;
-        /**
-         * Cleans up all click detectors
-         */
-        internalCleanUpClickDetectors(): void;
-        /**
-         * Internal method to get the HTML of the game state.
-         * @returns {string}
-         */
-        internalGetFullHtml(): string;
-        /**
-         * Internal method to compute the time to fade in / out
-         * @returns {number} time to fade in / out in ms
-         */
-        internalGetFadeInOutTime(): number;
-    }
-    import { StateManager } from "shapez/core/state_manager";
-    import { Application } from "shapez/application";
-    import { ClickDetector } from "shapez/core/click_detector";
-    import { InputReceiver } from "shapez/core/input_receiver";
-    import { RequestChannel } from "shapez/core/request_channel";
-}
-declare module "shapez/game/game_loading_overlay" {
-    export class GameLoadingOverlay {
-        /**
-         *
-         * @param {Application} app
-         * @param {HTMLElement} parent
-         */
-        constructor(app: Application, parent: HTMLElement);
-        app: Application;
-        parent: HTMLElement;
-        /** @type {HTMLElement} */
-        element: HTMLElement;
-        /**
-         * Removes the overlay if its currently visible
-         */
-        removeIfAttached(): void;
-        /**
-         * Returns if the loading overlay is attached
-         */
-        isAttached(): HTMLElement;
-        /**
-         * Shows a super basic overlay
-         */
-        showBasic(): void;
-        /**
-         * Adds a text with 'loading' and a spinner
-         * @param {HTMLElement} element
-         */
-        internalAddSpinnerAndText(element: HTMLElement): void;
-        /**
-         * Adds a random hint
-         * @param {HTMLElement} element
-         */
-        internalAddHint(element: HTMLElement): void;
-    }
-    import { Application } from "shapez/application";
-}
-declare module "shapez/core/lzstring" {
-    export function compressU8(uncompressed: any): Uint8Array;
-    /**
-     * @param {string} uncompressed
-     * @param {number} header
-     */
-    export function compressU8WHeader(uncompressed: string, header: number): Uint8Array;
-    /**
-     *
-     * @param {Uint8Array} compressed
-     */
-    export function decompressU8WHeader(compressed: Uint8Array): string;
-    export function compressX64(input: any): string;
-    export function decompressX64(input: any): string;
-}
-declare module "shapez/core/sensitive_utils.encrypt" {
-    export function sha1(str: any): any;
-    export function getNameOfProvider(): any;
-    /**
-     * Computes the crc for a given string
-     * @param {string} str
-     */
-    export function computeCrc(str: string): string;
-    export const CRC_PREFIX: string;
-}
-declare module "shapez/platform/storage" {
-    export const FILE_NOT_FOUND: "file_not_found";
-    export abstract class StorageInterface {
-        constructor(app: any);
-        /** @type {Application} */
-        app: Application;
-        /**
-         * Initializes the storage
-         * @returns {Promise<void>}
-         * @abstract
-         */
-        abstract initialize(): Promise<void>;
-        /**
-         * Writes a string to a file asynchronously
-         * @param {string} filename
-         * @param {string} contents
-         * @returns {Promise<void>}
-         * @abstract
-         */
-        abstract writeFileAsync(filename: string, contents: string): Promise<void>;
-        /**
-         * Reads a string asynchronously. Returns Promise<FILE_NOT_FOUND> if file was not found.
-         * @param {string} filename
-         * @returns {Promise<string>}
-         * @abstract
-         */
-        abstract readFileAsync(filename: string): Promise<string>;
-        /**
-         * Tries to delete a file
-         * @param {string} filename
-         * @returns {Promise<void>}
-         */
-        deleteFileAsync(filename: string): Promise<void>;
-    }
-    import { Application } from "shapez/application";
-}
-declare module "shapez/savegame/savegame_compressor" {
-    /**
-     * @param {object} obj
-     */
-    export function compressObject(obj: object): {
-        keys: any[];
-        values: any[];
-        data: any;
-    };
-    /**
-     * @param {object} obj
-     */
-    export function decompressObject(obj: object): any;
-}
-declare module "shapez/webworkers/compression.worker" {
-    export {};
-}
-declare module "shapez/core/async_compression" {
-    export let compressionPrefix: string;
-    export const asyncCompressor: AsynCompression;
-    export type JobEntry = {
-        errorHandler: (arg0: any) => void;
-        resolver: (arg0: any) => void;
-        startTime: number;
-    };
-    /**
-     * @typedef {{
-     *   errorHandler: function(any) : void,
-     *   resolver: function(any) : void,
-     *   startTime: number
-     * }} JobEntry
-     */
-    class AsynCompression {
-        worker: any;
-        currentJobId: number;
-        /** @type {Object.<number, JobEntry>} */
-        currentJobs: {
-            [x: number]: JobEntry;
-        };
-        /**
-         * Compresses any object
-         * @param {any} obj
-         */
-        compressObjectAsync(obj: any): Promise<any>;
-        /**
-         * Queues a new job
-         * @param {string} job
-         * @param {any} data
-         * @returns {Promise<any>}
-         */
-        internalQueueJob(job: string, data: any): Promise<any>;
-    }
-    export {};
-}
-declare module "shapez/core/read_write_proxy" {
-    export class ReadWriteProxy {
-        /**
-         *
-         * @param {object} obj
-         */
-        static serializeObject(obj: object): string;
-        /**
-         *
-         * @param {object} text
-         */
-        static deserializeObject(text: object): any;
-        constructor(app: any, filename: any);
-        /** @type {Application} */
-        app: Application;
-        filename: any;
-        /** @type {object} */
-        currentData: object;
-        /**
-         * Store a debounced handler to prevent double writes
-         */
-        debouncedWrite: any;
-        /** @returns {ExplainedResult} */
-        verify(data: any): ExplainedResult;
-        getDefaultData(): {};
-        getCurrentVersion(): number;
-        /** @returns {ExplainedResult} */
-        migrate(data: any): ExplainedResult;
-        resetEverythingAsync(): Promise<void>;
-        /**
-         * Writes the data asychronously, fails if verify() fails.
-         * Debounces the operation by up to 50ms
-         * @returns {Promise<void>}
-         */
-        writeAsync(): Promise<void>;
-        /**
-         * Actually writes the data asychronously
-         * @returns {Promise<void>}
-         */
-        doWriteAsync(): Promise<void>;
-        readAsync(): Promise<any>;
-        /**
-         * Deletes the file
-         * @returns {Promise<void>}
-         */
-        deleteAsync(): Promise<void>;
-        /** @returns {ExplainedResult} */
-        internalVerifyBasicStructure(data: any): ExplainedResult;
-        /** @returns {ExplainedResult} */
-        internalVerifyEntry(data: any): ExplainedResult;
-    }
-    import { Application } from "shapez/application";
-    import { ExplainedResult } from "shapez/core/explained_result";
-}
-declare module "shapez/savegame/savegame_interface" {
-    export class BaseSavegameInterface {
-        /**
-         * Constructs an new interface for the given savegame
-         * @param {any} data
-         */
-        constructor(data: any);
-        /**
-         * Returns the interfaces version
-         */
-        getVersion(): void;
-        /**
-         * Returns the uncached json schema
-         * @returns {object}
-         */
-        getSchemaUncached(): object;
-        getValidator(): any;
-        data: any;
-        /**
-         * Validates the data
-         * @returns {boolean}
-         */
-        validate(): boolean;
-        /**
-         * Returns the time of last update
-         * @returns {number}
-         */
-        readLastUpdate(): number;
-        /**
-         * Returns the ingame time in seconds
-         * @returns {number}
-         */
-        readIngameTimeSeconds(): number;
-    }
-}
-declare module "shapez/savegame/schemas/1000" {
-    export class SavegameInterface_V1000 extends BaseSavegameInterface {
-        constructor(data: any);
-    }
-    import { BaseSavegameInterface } from "shapez/savegame/savegame_interface";
 }
 declare module "shapez/savegame/savegame_typedefs" {
     let _default: {};
@@ -6478,6 +6690,109 @@ declare module "shapez/game/buildings/goal_acceptor" {
         }[];
     }
     import { MetaBuilding } from "shapez/game/meta_building";
+}
+declare module "shapez/game/buildings/item_producer" {
+    export class MetaItemProducerBuilding extends NonAbstract(MetaBuilding) {
+        static getAllVariantCombinations(): {
+            internalId: number;
+            variant: string;
+        }[];
+    }
+    import { MetaBuilding } from "shapez/game/meta_building";
+}
+declare module "shapez/game/game_mode" {
+    export type enumGameModeIds = string;
+    export namespace enumGameModeIds {
+        export const puzzleEdit: string;
+        export const puzzlePlay: string;
+        export const regular: string;
+    }
+    export type enumGameModeTypes = string;
+    /** @enum {string} */
+    export const enumGameModeTypes: {
+        default: string;
+        puzzle: string;
+    };
+    export abstract class GameMode extends BasicSerializableObject {
+        /** @returns {string} */
+        static getId(): string;
+        /** @returns {string} */
+        static getType(): string;
+        /**
+         * @param {GameRoot} root
+         * @param {string} [id=Regular]
+         * @param {object|undefined} payload
+         */
+        static create(root: GameRoot, id?: string, payload?: object | undefined): any;
+        /**
+         * @param {GameRoot} root
+         */
+        constructor(root: GameRoot);
+        root: GameRoot;
+        /**
+         * @type {Record<string, typeof BaseHUDPart>}
+         */
+        additionalHudParts: Record<string, typeof BaseHUDPart>;
+        /** @type {typeof MetaBuilding[]} */
+        hiddenBuildings: typeof MetaBuilding[];
+        /** @returns {string} */
+        getId(): string;
+        /** @returns {string} */
+        getType(): string;
+        /**
+         * @param {typeof MetaBuilding} building - Class name of building
+         * @returns {boolean}
+         */
+        isBuildingExcluded(building: typeof MetaBuilding): boolean;
+        /** @returns {undefined|Rectangle[]} */
+        getBuildableZones(): undefined | Rectangle[];
+        /** @returns {Rectangle|undefined} */
+        getCameraBounds(): Rectangle | undefined;
+        /** @returns {boolean} */
+        hasHub(): boolean;
+        /** @returns {boolean} */
+        hasResources(): boolean;
+        /** @returns {boolean} */
+        hasAchievements(): boolean;
+        /** @returns {number} */
+        getMinimumZoom(): number;
+        /** @returns {number} */
+        getMaximumZoom(): number;
+        /** @returns {Object<string, Array>} */
+        getUpgrades(): {
+            [x: string]: Array<any>;
+        };
+        throughputDoesNotMatter(): boolean;
+        /**
+         * @param {number} w
+         * @param {number} h
+         * @abstract
+         */
+        abstract adjustZone(w?: number, h?: number): void;
+        /** @returns {array} */
+        getLevelDefinitions(): any[];
+        /** @returns {boolean} */
+        getIsFreeplayAvailable(): boolean;
+        /** @returns {boolean} */
+        getIsSaveable(): boolean;
+        /** @returns {boolean} */
+        getHasFreeCopyPaste(): boolean;
+        /** @returns {boolean} */
+        getSupportsWires(): boolean;
+        /** @returns {boolean} */
+        getIsEditor(): boolean;
+        /** @returns {boolean} */
+        getIsDeterministic(): boolean;
+        /** @returns {number | undefined} */
+        getFixedTickrate(): number | undefined;
+        /** @returns {string} */
+        getBlueprintShapeKey(): string;
+    }
+    import { BasicSerializableObject } from "shapez/savegame/serialization";
+    import { GameRoot } from "shapez/game/root";
+    import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
+    import { MetaBuilding } from "shapez/game/meta_building";
+    import { Rectangle } from "shapez/core/rectangle";
 }
 declare module "shapez/game/buildings/block" {
     export class MetaBlockBuilding extends NonAbstract(MetaBuilding) {
@@ -7211,6 +7526,7 @@ declare module "shapez/game/hud/parts/mass_selector" {
         clearSelection(): void;
         confirmDelete(): void;
         doDelete(): void;
+        showBlueprintsNotUnlocked(): void;
         startCopy(): void;
         clearBelts(): void;
         confirmCut(): void;
@@ -8200,13 +8516,9 @@ declare module "shapez/game/hud/parts/keybinding_overlay" {
 declare module "shapez/game/hud/parts/watermark" {
     export class HUDWatermark extends NonAbstract(BaseHUDPart) {
         constructor(root: import("shapez/game/root").GameRoot);
-        element: HTMLDivElement;
         linkElement: HTMLDivElement;
-        domAttach: DynamicDomAttach;
-        onWatermarkClick(): void;
     }
     import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
-    import { DynamicDomAttach } from "shapez/game/hud/dynamic_dom_attach";
 }
 declare module "shapez/game/hud/parts/standalone_advantages" {
     export class HUDStandaloneAdvantages extends NonAbstract(BaseHUDPart) {
@@ -8214,25 +8526,20 @@ declare module "shapez/game/hud/parts/standalone_advantages" {
         background: HTMLDivElement;
         dialogInner: HTMLDivElement;
         title: HTMLDivElement;
+        subTitle: HTMLDivElement;
         contentDiv: HTMLDivElement;
+        get showIntervalSeconds(): number;
+        hasBlockingOverlayOpen(): boolean;
         domAttach: DynamicDomAttach;
         inputReciever: InputReceiver;
         lastShown: number;
-        show(): void;
+        show(final?: boolean): void;
         visible: boolean;
+        final: boolean;
     }
     import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
     import { DynamicDomAttach } from "shapez/game/hud/dynamic_dom_attach";
     import { InputReceiver } from "shapez/core/input_receiver";
-}
-declare module "shapez/game/hud/parts/cat_memes" {
-    export class HUDCatMemes extends NonAbstract(BaseHUDPart) {
-        constructor(root: import("shapez/game/root").GameRoot);
-        element: HTMLDivElement;
-        domAttach: DynamicDomAttach;
-    }
-    import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
-    import { DynamicDomAttach } from "shapez/game/hud/dynamic_dom_attach";
 }
 declare module "shapez/game/hud/parts/tutorial_hints" {
     export class HUDPartTutorialHints extends NonAbstract(BaseHUDPart) {
@@ -8255,13 +8562,6 @@ declare module "shapez/game/hud/parts/tutorial_hints" {
     import { KeyActionMapper } from "shapez/game/key_action_mapper";
     import { TrackedState } from "shapez/core/tracked_state";
 }
-declare module "shapez/core/cachebust" {
-    /**
-     * Generates a cachebuster string. This only modifies the path in the browser version
-     * @param {string} path
-     */
-    export function cachebust(path: string): string;
-}
 declare module "shapez/game/hud/parts/interactive_tutorial" {
     export class HUDInteractiveTutorial extends NonAbstract(BaseHUDPart) {
         constructor(root: GameRoot);
@@ -8277,32 +8577,22 @@ declare module "shapez/game/hud/parts/interactive_tutorial" {
     import { TrackedState } from "shapez/core/tracked_state";
     import { GameRoot } from "shapez/game/root";
 }
-declare module "shapez/core/query_parameters" {
-    export namespace queryParamOptions {
-        export const embedProvider: any;
-    }
-}
-declare module "shapez/game/hud/parts/sandbox_controller" {
-    export class HUDSandboxController extends NonAbstract(BaseHUDPart) {
-        constructor(root: import("shapez/game/root").GameRoot);
-        element: HTMLDivElement;
-        giveBlueprints(): void;
-        maxOutAll(): void;
-        modifyUpgrade(id: any, amount: any): void;
-        modifyLevel(amount: any): void;
-        visible: any;
-        domAttach: DynamicDomAttach;
-        toggle(): void;
-    }
-    import { BaseHUDPart } from "shapez/game/hud/base_hud_part";
-    import { DynamicDomAttach } from "shapez/game/hud/dynamic_dom_attach";
+declare module "shapez/game/modes/levels" {
+    /**
+     * Generates the level definitions
+     */
+    export function generateLevelsForVariant(app: any): {
+        shape: string;
+        required: number;
+        reward: string;
+    }[];
+    export const finalGameShape: "RuCw--Cw:----Ru--";
 }
 declare module "shapez/game/modes/regular" {
     /**
      * Generates the level definitions
-     * @param {boolean} limitedVersion
      */
-    export function generateLevelDefinitions(limitedVersion?: boolean): any;
+    export function generateLevelDefinitions(app: any): any;
     /** @typedef {{
      *   shape: string,
      *   amount: number
@@ -8320,10 +8610,10 @@ declare module "shapez/game/modes/regular" {
      *   throughputOnly?: boolean
      * }} LevelDefinition */
     export const rocketShape: "CbCuCbCu:Sr------:--CrSrCr:CwCwCwCw";
-    export const finalGameShape: "RuCw--Cw:----Ru--";
     export class RegularGameMode extends NonAbstract(GameMode) {
         /** @param {GameRoot} root */
         constructor(root: GameRoot);
+        get difficultyMultiplicator(): 1 | 0.5 | 0.75;
     }
     export type UpgradeRequirement = {
         shape: string;
@@ -11475,8 +11765,11 @@ declare module "shapez/game/map_view" {
         backgroundCacheDPI: number;
         /**
          * The cached background sprite, containing the flat background
-         * @type {HTMLCanvasElement} */
-        cachedBackgroundCanvas: HTMLCanvasElement;
+         * @type {Object<string, HTMLCanvasElement | null>}
+         */
+        cachedBackgroundCanvases: {
+            [x: string]: HTMLCanvasElement | null;
+        };
         /** @type {CanvasRenderingContext2D} */
         cachedBackgroundContext: CanvasRenderingContext2D;
         cleanup(): void;
@@ -11827,7 +12120,7 @@ declare module "shapez/states/ingame" {
          * @TODO: This doesn't realy fit here
          */
         currentSavePromise: any;
-        get dialogs(): import("shapez/game/hud/parts/modal_dialogs").HUDModalDialogs;
+        get dialogs(): HUDModalDialogs;
         /**
          * Switches the game into another sub-state
          * @param {string} stage
@@ -11913,6 +12206,7 @@ declare module "shapez/states/ingame" {
     import { GameCore } from "shapez/game/core";
     import { KeyActionMapper } from "shapez/game/key_action_mapper";
     import { GameLoadingOverlay } from "shapez/game/game_loading_overlay";
+    import { HUDModalDialogs } from "shapez/game/hud/parts/modal_dialogs";
 }
 declare module "shapez/mods/mod_signals" {
     export namespace MOD_SIGNALS {
@@ -12407,369 +12701,70 @@ declare module "shapez/game/root" {
     import { Signal } from "shapez/core/signal";
     import { RandomNumberGenerator } from "shapez/core/rng";
 }
-declare module "shapez/core/draw_parameters" {
-    /**
-     * @typedef {import("shapez/game/root").GameRoot} GameRoot
-     * @typedef {import("shapez/core/rectangle").Rectangle} Rectangle
-     */
-    export class DrawParameters {
-        constructor({
-            context,
-            visibleRect,
-            desiredAtlasScale,
-            zoomLevel,
-            root,
-        }: {
-            context: any;
-            visibleRect: any;
-            desiredAtlasScale: any;
-            zoomLevel: any;
-            root: any;
-        });
-        /** @type {CanvasRenderingContext2D} */
-        context: CanvasRenderingContext2D;
-        /** @type {Rectangle} */
-        visibleRect: Rectangle;
-        /** @type {string} */
-        desiredAtlasScale: string;
-        /** @type {number} */
-        zoomLevel: number;
-        /** @type {GameRoot} */
+declare module "shapez/game/time/base_game_speed" {
+    export class BaseGameSpeed extends BasicSerializableObject {
+        /** @returns {string} */
+        static getId(): string;
+        static getSchema(): {};
+        /**
+         * @param {GameRoot} root
+         */
+        constructor(root: GameRoot);
         root: GameRoot;
+        getId(): any;
+        initializeAfterDeserialize(root: any): void;
+        /**
+         * Returns the time multiplier
+         */
+        getTimeMultiplier(): number;
+        /**
+         * Returns how many logic steps there may be queued
+         */
+        getMaxLogicStepsInQueue(): number;
+        /** @returns {BaseGameSpeed} */
+        newSpeed(instance: any): BaseGameSpeed;
     }
-    export type GameRoot = import("shapez/game/root").GameRoot;
-    export type Rectangle = import("shapez/core/rectangle").Rectangle;
+    import { BasicSerializableObject } from "shapez/savegame/serialization";
+    import { GameRoot } from "shapez/game/root";
 }
-declare module "shapez/core/sprites" {
-    export const ORIGINAL_SPRITE_SCALE: "0.75";
-    export const FULL_CLIP_RECT: Rectangle;
-    export abstract class BaseSprite {
-        /**
-         * Returns the raw handle
-         * @returns {HTMLImageElement|HTMLCanvasElement}
-         * @abstract
-         */
-        abstract getRawTexture(): HTMLImageElement | HTMLCanvasElement;
-        /**
-         * Draws the sprite
-         * @param {CanvasRenderingContext2D} context
-         * @param {number} x
-         * @param {number} y
-         * @param {number} w
-         * @param {number} h
-         */
-        draw(context: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void;
-    }
+declare module "shapez/core/global_registries" {
     /**
-     * Position of a sprite within an atlas
+     * @param {Object.<string, Array<Class<MetaBuilding>>>} buildings
      */
-    export class SpriteAtlasLink {
-        /**
-         *
-         * @param {object} param0
-         * @param {number} param0.packedX
-         * @param {number} param0.packedY
-         * @param {number} param0.packOffsetX
-         * @param {number} param0.packOffsetY
-         * @param {number} param0.packedW
-         * @param {number} param0.packedH
-         * @param {number} param0.w
-         * @param {number} param0.h
-         * @param {HTMLImageElement|HTMLCanvasElement} param0.atlas
-         */
-        constructor({
-            w,
-            h,
-            packedX,
-            packedY,
-            packOffsetX,
-            packOffsetY,
-            packedW,
-            packedH,
-            atlas,
-        }: {
-            packedX: number;
-            packedY: number;
-            packOffsetX: number;
-            packOffsetY: number;
-            packedW: number;
-            packedH: number;
-            w: number;
-            h: number;
-            atlas: HTMLImageElement | HTMLCanvasElement;
-        });
-        packedX: number;
-        packedY: number;
-        packedW: number;
-        packedH: number;
-        packOffsetX: number;
-        packOffsetY: number;
-        atlas: HTMLCanvasElement | HTMLImageElement;
-        w: number;
-        h: number;
-    }
-    export class AtlasSprite extends NonAbstract(BaseSprite) {
-        /**
-         *
-         * @param {string} spriteName
-         */
-        constructor(spriteName?: string);
-        /** @type {Object.<string, SpriteAtlasLink>} */
-        linksByResolution: {
-            [x: string]: SpriteAtlasLink;
-        };
-        spriteName: string;
-        frozen: boolean;
-        /**
-         *
-         * @param {DrawParameters} parameters
-         * @param {number} x
-         * @param {number} y
-         * @param {number} size
-         * @param {boolean=} clipping
-         */
-        drawCachedCentered(
-            parameters: DrawParameters,
-            x: number,
-            y: number,
-            size: number,
-            clipping?: boolean | undefined
-        ): void;
-        /**
-         *
-         * @param {CanvasRenderingContext2D} context
-         * @param {number} x
-         * @param {number} y
-         * @param {number} size
-         */
-        drawCentered(context: CanvasRenderingContext2D, x: number, y: number, size: number): void;
-        /**
-         * Draws the sprite
-         * @param {DrawParameters} parameters
-         * @param {number} x
-         * @param {number} y
-         * @param {number} w
-         * @param {number} h
-         * @param {boolean=} clipping Whether to perform culling
-         */
-        drawCached(
-            parameters: DrawParameters,
-            x: number,
-            y: number,
-            w?: number,
-            h?: number,
-            clipping?: boolean | undefined
-        ): void;
-        /**
-         * Draws a subset of the sprite. Does NO culling
-         * @param {DrawParameters} parameters
-         * @param {number} x
-         * @param {number} y
-         * @param {number} w
-         * @param {number} h
-         * @param {Rectangle=} clipRect The rectangle in local space (0 ... 1) to draw of the image
-         */
-        drawCachedWithClipRect(
-            parameters: DrawParameters,
-            x: number,
-            y: number,
-            w?: number,
-            h?: number,
-            clipRect?: Rectangle | undefined
-        ): void;
-        /**
-         * Renders into an html element
-         * @param {HTMLElement} element
-         * @param {number} w
-         * @param {number} h
-         */
-        renderToHTMLElement(element: HTMLElement, w?: number, h?: number): void;
-        /**
-         * Returns the html to render as icon
-         * @param {number} w
-         * @param {number} h
-         */
-        getAsHTML(w: number, h: number): string;
-    }
-    export class RegularSprite extends NonAbstract(BaseSprite) {
-        constructor(sprite: any, w: any, h: any);
-        w: any;
-        h: any;
-        sprite: any;
-        /**
-         * Draws the sprite, do *not* use this for sprites which are rendered! Only for drawing
-         * images into buffers
-         * @param {CanvasRenderingContext2D} context
-         * @param {number} x
-         * @param {number} y
-         * @param {number} w
-         * @param {number} h
-         */
-        drawCentered(context: CanvasRenderingContext2D, x: number, y: number, w: number, h: number): void;
-    }
-    import { Rectangle } from "shapez/core/rectangle";
-    import { DrawParameters } from "shapez/core/draw_parameters";
-}
-declare module "shapez/core/atlas_definitions" {
+    export function initBuildingsByCategory(buildings: { [x: string]: Array<any> }): void;
     /**
-     * @typedef {{ w: number, h: number }} Size
-     * @typedef {{ x: number, y: number }} Position
-     * @typedef {{
-     *   frame: Position & Size,
-     *   rotated: boolean,
-     *   spriteSourceSize: Position & Size,
-     *   sourceSize: Size,
-     *   trimmed: boolean
-     * }} SpriteDefinition
-     *
-     * @typedef {{
-     *   app: string,
-     *   version: string,
-     *   image: string,
-     *   format: string,
-     *   size: Size,
-     *   scale: string,
-     *   smartupdate: string
-     * }} AtlasMeta
-     *
-     * @typedef {{
-     *   frames: Object.<string, SpriteDefinition>,
-     *   meta: AtlasMeta
-     * }} SourceData
-     */
-    export class AtlasDefinition {
-        /**
-         * @param {SourceData} sourceData
-         */
-        constructor({ frames, meta }: SourceData);
-        meta: {
-            app: string;
-            version: string;
-            image: string;
-            format: string;
-            size: Size;
-            scale: string;
-            smartupdate: string;
-        };
-        sourceData: {
-            [x: string]: {
-                frame: Position & Size;
-                rotated: boolean;
-                spriteSourceSize: Position & Size;
-                sourceSize: Size;
-                trimmed: boolean;
-            };
-        };
-        sourceFileName: string;
-        getFullSourcePath(): string;
-    }
-    /** @type {AtlasDefinition[]} **/
-    export const atlasFiles: AtlasDefinition[];
-    export type Size = {
-        w: number;
-        h: number;
+     * @typedef {import("shapez/game/time/base_game_speed").BaseGameSpeed} BaseGameSpeed
+     * @typedef {import("shapez/game/component").Component} Component
+     * @typedef {import("shapez/game/base_item").BaseItem} BaseItem
+     * @typedef {import("shapez/game/game_mode").GameMode} GameMode
+     * @typedef {import("shapez/game/meta_building").MetaBuilding} MetaBuilding
+    
+    
+    // These factories are here to remove circular dependencies
+    
+    /** @type {SingletonFactoryTemplate<MetaBuilding>} */
+    export let gMetaBuildingRegistry: any;
+    /** @type {Object.<string, Array<Class<MetaBuilding>>>} */
+    export let gBuildingsByCategory: {
+        [x: string]: Array<any>;
     };
-    export type Position = {
-        x: number;
-        y: number;
-    };
-    export type SpriteDefinition = {
-        frame: Position & Size;
-        rotated: boolean;
-        spriteSourceSize: Position & Size;
-        sourceSize: Size;
-        trimmed: boolean;
-    };
-    export type AtlasMeta = {
-        app: string;
-        version: string;
-        image: string;
-        format: string;
-        size: Size;
-        scale: string;
-        smartupdate: string;
-    };
-    export type SourceData = {
-        frames: {
-            [x: string]: SpriteDefinition;
-        };
-        meta: AtlasMeta;
-    };
-}
-declare module "shapez/core/loader" {
-    export const Loader: LoaderImpl;
-    export type Application = import("shapez/application").Application;
+    /** @type {FactoryTemplate<Component>} */
+    export let gComponentRegistry: any;
+    /** @type {FactoryTemplate<GameMode>} */
+    export let gGameModeRegistry: any;
+    /** @type {FactoryTemplate<BaseGameSpeed>} */
+    export let gGameSpeedRegistry: any;
+    /** @type {FactoryTemplate<BaseItem>} */
+    export let gItemRegistry: any;
+    export type BaseGameSpeed = import("shapez/game/time/base_game_speed").BaseGameSpeed;
+    export type Component = import("shapez/game/component").Component;
+    export type BaseItem = import("shapez/game/base_item").BaseItem;
+    export type GameMode = import("shapez/game/game_mode").GameMode;
     /**
-     * ;
+     * // These factories are here to remove circular dependencies
+     * /**
      */
-    export type AtlasDefinition = import("shapez/core/atlas_definitions").AtlasDefinition;
-    class LoaderImpl {
-        app: import("shapez/application").Application;
-        /** @type {Map<string, BaseSprite>} */
-        sprites: Map<string, BaseSprite>;
-        rawImages: any[];
-        /**
-         * @param {Application} app
-         */
-        linkAppAfterBoot(app: Application): void;
-        /**
-         * Fetches a given sprite from the cache
-         * @param {string} key
-         * @returns {BaseSprite}
-         */
-        getSpriteInternal(key: string): BaseSprite;
-        /**
-         * Returns an atlas sprite from the cache
-         * @param {string} key
-         * @returns {AtlasSprite}
-         */
-        getSprite(key: string): AtlasSprite;
-        /**
-         * Returns a regular sprite from the cache
-         * @param {string} key
-         * @returns {RegularSprite}
-         */
-        getRegularSprite(key: string): RegularSprite;
-        /**
-         *
-         * @param {string} key
-         * @returns {Promise<HTMLImageElement|null>}
-         */
-        internalPreloadImage(key: string): Promise<HTMLImageElement | null>;
-        /**
-         * Preloads a sprite
-         * @param {string} key
-         * @returns {Promise<void>}
-         */
-        preloadCSSSprite(key: string): Promise<void>;
-        /**
-         * Preloads an atlas
-         * @param {AtlasDefinition} atlas
-         * @returns {Promise<void>}
-         */
-        preloadAtlas(atlas: AtlasDefinition): Promise<void>;
-        /**
-         *
-         * @param {AtlasDefinition} atlas
-         * @param {HTMLImageElement} loadedImage
-         */
-        internalParseAtlas(
-            {
-                meta: { scale },
-                sourceData,
-            }: AtlasDefinition,
-            loadedImage: HTMLImageElement
-        ): void;
-        /**
-         * Makes the canvas which shows the question mark, shown when a sprite was not found
-         */
-        makeSpriteNotFoundCanvas(): void;
-        spriteNotFoundSprite: AtlasSprite;
-    }
-    import { BaseSprite } from "shapez/core/sprites";
-    import { AtlasSprite } from "shapez/core/sprites";
-    import { RegularSprite } from "shapez/core/sprites";
-    export {};
+    export type MetaBuilding = import("shapez/game/meta_building").MetaBuilding;
 }
 declare module "shapez/game/meta_building_registry" {
     /**
@@ -12781,11 +12776,10 @@ declare module "shapez/game/meta_building_registry" {
     /**
      * Once all sprites are loaded, propagates the cache
      */
-    export function initBuildingCodesAfterResourcesLoaded(): void;
+    export function initSpriteCache(): void;
     import { MetaBuilding } from "shapez/game/meta_building";
 }
 declare module "shapez/core/background_resources_loader" {
-    export function getLogoSprite(): "logo_wegame.png" | "logo_cn.png" | "logo.png";
     export class BackgroundResourcesLoader {
         /**
          *
@@ -12793,37 +12787,36 @@ declare module "shapez/core/background_resources_loader" {
          */
         constructor(app: Application);
         app: Application;
-        registerReady: boolean;
-        mainMenuReady: boolean;
-        bareGameReady: boolean;
-        additionalReady: boolean;
-        signalMainMenuLoaded: Signal;
-        signalBareGameLoaded: Signal;
-        signalAdditionalLoaded: Signal;
-        numAssetsLoaded: number;
-        numAssetsToLoadTotal: number;
-        spritesLoaded: any[];
-        soundsLoaded: any[];
-        getNumAssetsLoaded(): number;
-        getNumAssetsTotal(): number;
-        getPromiseForMainMenu(): Promise<any>;
-        getPromiseForBareGame(): Promise<any>;
-        startLoading(): void;
-        internalStartLoadingEssentialsForMainMenu(): void;
-        internalStartLoadingEssentialsForBareGame(): void;
-        internalStartLoadingAdditionalGameAssets(): void;
-        internalPreloadCss(name: any): Promise<any>;
+        mainMenuPromise: Promise<void>;
+        ingamePromise: Promise<void>;
+        resourceStateChangedSignal: Signal;
+        getMainMenuPromise(): Promise<void>;
+        getIngamePromise(): Promise<void>;
         /**
-         * @param {Array<string>} sprites
-         * @param {Array<string>} sounds
-         * @param {Array<AtlasDefinition>} atlases
-         * @returns {Promise<void>}
+         *
+         * @param {object} param0
+         * @param {string[]} param0.sprites
+         * @param {string[]} param0.sounds
+         * @param {AtlasDefinition[]} param0.atlas
+         * @param {string[]} param0.css
          */
-        internalLoadSpritesAndSounds(
-            sprites: Array<string>,
-            sounds: Array<string>,
-            atlases?: Array<AtlasDefinition>
-        ): Promise<void>;
+        loadAssets({
+            sprites,
+            sounds,
+            atlas,
+            css,
+        }: {
+            sprites: string[];
+            sounds: string[];
+            atlas: AtlasDefinition[];
+            css: string[];
+        }): Promise<void>;
+        /**
+         * Shows an error when a resource failed to load and allows to reload the game
+         */
+        showLoaderError(dialogs: any, err: any): void;
+        preloadWithProgress(src: any, progressHandler: any): Promise<any>;
+        internalPreloadCss(src: any, progressHandler: any): Promise<void>;
     }
     import { Application } from "shapez/application";
     import { Signal } from "shapez/core/signal";
@@ -12939,6 +12932,7 @@ declare module "shapez/platform/ad_provider" {
          * @returns {Promise<void>}
          */
         showVideoAd(): Promise<void>;
+        setPlayStatus(playing: any): void;
     }
     import { Application } from "shapez/application";
 }
@@ -12971,11 +12965,6 @@ declare module "shapez/platform/analytics" {
          */
         setUserContext(userName: string): void;
         /**
-         * Tracks a click no an ui element
-         * @param {string} elementName
-         */
-        trackUiClick(elementName: string): void;
-        /**
          * Tracks when a new state is entered
          * @param {string} stateId
          */
@@ -12985,6 +12974,7 @@ declare module "shapez/platform/analytics" {
          * @param {string} name
          */
         trackDecision(name: string): void;
+        trackUiClick(): void;
     }
     import { Application } from "shapez/application";
 }
@@ -13013,6 +13003,22 @@ declare module "shapez/platform/browser/sound" {
         deinitialize(): void;
     }
     export {};
+}
+declare module "shapez/core/query_parameters" {
+    export namespace queryParamOptions {
+        export const embedProvider: any;
+        export const abtVariant: any;
+        export const campaign: any;
+        export const fbclid: any;
+        export const gclid: any;
+    }
+}
+declare module "shapez/platform/ad_providers/crazygames" {
+    export class CrazygamesAdProvider extends NonAbstract(AdProviderInterface) {
+        constructor(app: import("shapez/application").Application);
+        get sdkInstance(): any;
+    }
+    import { AdProviderInterface } from "shapez/platform/ad_provider";
 }
 declare module "shapez/platform/ad_providers/gamedistribution" {
     export class GamedistributionAdProvider extends NonAbstract(AdProviderInterface) {
@@ -13142,7 +13148,6 @@ declare module "shapez/platform/browser/wrapper" {
             adProvider: typeof NoAdProvider;
             iframed: boolean;
             externalLinks: boolean;
-            iogLink: boolean;
         };
         detectStorageImplementation(): Promise<any>;
         /**
@@ -13408,6 +13413,7 @@ declare module "shapez/profile/application_settings" {
         keybindingOverrides: {
             [x: string]: number;
         };
+        showKiwiClicker: boolean;
     }
     export {};
 }
@@ -13429,11 +13435,6 @@ declare module "shapez/savegame/savegame_manager" {
          * @returns {Savegame}
          */
         getSavegameById(internalId: string): Savegame;
-        /**
-         * Returns if this manager has any savegame of a 1.1.19 version, which
-         * enables all levels
-         */
-        getHasAnyLegacySavegames(): boolean;
         /**
          * Deletes a savegame
          * @param {SavegameMetadata} game
@@ -13569,6 +13570,7 @@ declare module "shapez/states/main_menu" {
      * @typedef {import("shapez/profile/setting_types").EnumSetting} EnumSetting
      */
     export class MainMenuState extends NonAbstract(GameState) {
+        refreshInterval: NodeJS.Timeout;
         /**
          * Asks the user to import a savegame
          */
@@ -13576,13 +13578,18 @@ declare module "shapez/states/main_menu" {
         dialogs: HUDModalDialogs;
         videoElement: HTMLVideoElement;
         renderMainMenu(): void;
+        fetchPlayerCount(): void;
         onPuzzleModeButtonClicked(force?: boolean): void;
         onPuzzleWishlistButtonClicked(): void;
+        onKiwiClickerClicked(): void;
+        hideKiwiClicker(): string;
         onBackButtonClicked(): void;
         onSteamLinkClicked(): boolean;
+        onSteamLinkClickedSocial(): boolean;
         onExitAppButtonClicked(): void;
         onChangelogClicked(): void;
         onRedditClicked(): void;
+        onTwitterLinkClicked(): void;
         onLanguageChooseClicked(): void;
         get savedGames(): {
             lastUpdate: number;
@@ -13649,18 +13656,20 @@ declare module "shapez/states/preload" {
     export class PreloadState extends NonAbstract(GameState) {
         dialogs: HUDModalDialogs;
         /** @type {HTMLElement} */
-        statusText: HTMLElement;
-        /** @type {HTMLElement} */
         hintsText: HTMLElement;
         lastHintShown: number;
         nextHintDuration: number;
+        statusText: Element;
+        progressElement: Element;
+        fetchDiscounts(): Promise<void>;
+        sendBeacon(): Promise<void>;
         startLoading(): void;
         update(): void;
         /**
          *
          * @param {string} text
          */
-        setStatus(text: string): Promise<void>;
+        setStatus(text: string, progress: any): Promise<void>;
         currentStatus: string;
         showFailMessage(text: any): void;
         showResetConfirm(): void;
@@ -13729,7 +13738,11 @@ declare module "shapez/platform/game_analytics" {
 declare module "shapez/platform/browser/game_analytics" {
     export class ShapezGameAnalytics extends NonAbstract(GameAnalyticsInterface) {
         constructor(app: any);
-        get environment(): "dev" | "steam" | "prod" | "alpha" | "beta";
+        abtVariant: string;
+        get environment(): "steam-demo" | "prod" | "dev" | "steam" | "prod-full" | "alpha" | "beta";
+        fetchABVariant(): Promise<void>;
+        note(action: any): void;
+        noteMinor(action: any, payload?: string): void;
         syncKey: any;
         /**
          * Sends a request to the api
@@ -13773,11 +13786,7 @@ declare module "shapez/core/restriction_manager" {
          * @param {Application} app
          */
         constructor(app: Application);
-        initialize(): Promise<void>;
-        /**
-         * Checks if there are any savegames from the 1.1.19 version
-         */
-        onHasLegacySavegamesChanged(has119Savegames?: boolean): Promise<void>;
+        initialize(): Promise<any>;
         /**
          * Returns if the app is currently running as the limited version
          * @returns {boolean}
@@ -14011,6 +14020,7 @@ declare module "shapez/states/wegame_splash" {
 }
 declare module "shapez/states/mods" {
     export class ModsState extends TextualGameState {
+        get modsSupported(): any;
         showModTogglingComingSoon(): void;
         openModsFolder(): void;
         openBrowseMods(): void;
@@ -14045,13 +14055,15 @@ declare module "shapez/application" {
         adProvider: AdProviderInterface;
         /** @type {AnalyticsInterface} */
         analytics: AnalyticsInterface;
-        /** @type {GameAnalyticsInterface} */
-        gameAnalytics: GameAnalyticsInterface;
+        /** @type {ShapezGameAnalytics} */
+        gameAnalytics: ShapezGameAnalytics;
         focused: boolean;
         pageVisible: any;
         applicationPaused: boolean;
         /** @type {TypedTrackedState<boolean>} */
         trackedIsRenderable: any;
+        /** @type {TypedTrackedState<boolean>} */
+        trackedIsPlaying: any;
         screenWidth: any;
         screenHeight: number;
         lastResizeCheck: number;
@@ -14097,10 +14109,7 @@ declare module "shapez/application" {
          */
         isRenderable(): any;
         onAppRenderableStateChanged(renderable: any): void;
-        /**
-         * Internal unload handler
-         */
-        onUnload(event: any): void;
+        onAppPlayingStateChanged(playing: any): void;
         /**
          * Internal before-unload handler
          */
@@ -14135,7 +14144,6 @@ declare module "shapez/application" {
     }
     export type AchievementProviderInterface =
         import("shapez/platform/achievement_provider").AchievementProviderInterface;
-    export type GameAnalyticsInterface = import("shapez/platform/game_analytics").GameAnalyticsInterface;
     export type SoundInterface = import("shapez/platform/sound").SoundInterface;
     export type StorageInterface = import("shapez/platform/storage").StorageInterface;
     import { ApplicationSettings } from "shapez/profile/application_settings";
@@ -14149,6 +14157,7 @@ declare module "shapez/application" {
     import { PlatformWrapperInterface } from "shapez/platform/wrapper";
     import { AdProviderInterface } from "shapez/platform/ad_provider";
     import { AnalyticsInterface } from "shapez/platform/analytics";
+    import { ShapezGameAnalytics } from "shapez/platform/browser/game_analytics";
     import { Vector } from "shapez/core/vector";
 }
 
